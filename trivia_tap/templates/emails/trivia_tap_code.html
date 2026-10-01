@@ -1,0 +1,11 @@
+<h1 class="email-title">{{ _("Your TriviaTap code") }}</h1>
+<div class="email-body">
+	<p>
+		{% if purpose == "sign_up" %}{{ _("Enter this code to finish making your account.") }}
+		{% elif purpose == "reset_password" %}{{ _("Enter this code to set a new password.") }}
+		{% else %}{{ _("Enter this code to log in.") }}{% endif %}
+		{{ _("It expires in {0} minutes.").format(minutes) }}
+	</p>
+	<div class="email-code">{{ code }}</div>
+	<p class="email-ignore">{{ _("If you didn't ask for this code, you can safely ignore this email.") }}</p>
+</div>
