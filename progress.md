@@ -1,5 +1,35 @@
 # Progress
 
+## Phase 17: Host account menu (2026-10-01)
+
+Spec: `specs/phase-17-host-account-menu.md`.
+
+### Done
+
+- Host bar: Play and Library as text tabs with a mint underline, New quiz on
+  the right (a plus icon on a phone), and an initial avatar that opens the
+  account menu.
+- Account menu is a native `popover`: name and email, Profile, a three way
+  Auto, Light, Dark theme choice, and Log out. The floating theme button is
+  gone from host screens.
+- Profile page opens on a header card with the avatar, full name and email.
+  Save name stays disabled until the name changes.
+- The "Host" eyebrow is gone from the picker, quiz list and profile. New quiz
+  moved from the quiz list header to the bar.
+
+### Verified
+
+`yarn build` and pre-commit pass. In the browser, desktop and 390px phone, dark
+and light: tabs mark the current page, the bar fits one row on a phone, the
+menu opens, closes on Escape and on Profile, switches theme and logs out to
+`/join`. Save name is disabled on load, enabled after an edit, disabled again
+after save, and the header card shows the new name.
+
+### Notes
+
+- The log in email field is `type="email"`, so the browser refuses
+  `Administrator`. Only the dev admin account hits it.
+
 ## Phase 16: Brand theme from the logo (2026-10-01)
 
 Spec: `specs/phase-16-brand-theme.md`.

@@ -14,14 +14,9 @@
 			<div
 				class="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-8 p-5 pb-20 sm:p-8 sm:pb-20"
 			>
-				<div>
-					<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
-						Host
-					</p>
-					<h1 class="mt-2 font-display text-4xl font-extrabold text-paper sm:text-5xl">
-						Pick a quiz
-					</h1>
-				</div>
+				<h1 class="font-display text-4xl font-extrabold text-paper sm:text-5xl">
+					Pick a quiz
+				</h1>
 				<p v-if="error" class="text-alert">{{ error }}</p>
 				<div v-if="quizzes.length" class="flex flex-col gap-2">
 					<button

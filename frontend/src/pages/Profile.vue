@@ -2,20 +2,20 @@
 	<div class="flex h-full flex-col overflow-y-auto bg-night">
 		<HostBar />
 		<div class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 p-5 pb-20 sm:p-8 sm:pb-20">
-			<div class="flex items-end justify-between gap-4">
+			<div class="flex items-center gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5">
+				<span
+					class="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand font-display text-3xl font-extrabold text-sunk"
+				>
+					{{ initial }}
+				</span>
 				<div class="min-w-0">
-					<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
-						Host
-					</p>
-					<h1 class="mt-2 font-display text-4xl font-extrabold text-paper sm:text-5xl">
-						Your profile
+					<h1
+						class="truncate font-display text-2xl font-extrabold text-paper sm:text-3xl"
+					>
+						{{ fullName }}
 					</h1>
-					<p class="mt-2 truncate font-mono text-xs text-paper/40">{{ user }}</p>
+					<p class="truncate font-mono text-xs text-paper/50">{{ user }}</p>
 				</div>
-				<button class="ctl shrink-0 gap-2" @click="logout">
-					<LucideLogOut class="size-4" />
-					Log out
-				</button>
 			</div>
 
 			<form
@@ -39,7 +39,7 @@
 					</label>
 				</div>
 				<div class="flex items-center gap-4">
-					<button class="ctl ctl-go" :disabled="savingName">
+					<button class="ctl ctl-go" :disabled="savingName || !nameChanged">
 						{{ savingName ? "Saving…" : "Save name" }}
 					</button>
 					<p
@@ -115,10 +115,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { call, errorText } from "@/api";
-import { firstName as greetedName } from "@/host";
+import { firstName as greetedName, initial } from "@/host";
 import HostBar from "@/components/HostBar.vue";
 import PasswordInput from "@/components/PasswordInput.vue";
 
@@ -128,6 +128,13 @@ const user = window.session_user;
 
 const firstName = ref("");
 const lastName = ref("");
+const savedName = ref({ first: "", last: "" });
+const fullName = computed(
+	() => `${savedName.value.first} ${savedName.value.last}`.trim() || greetedName.value
+);
+const nameChanged = computed(
+	() => firstName.value !== savedName.value.first || lastName.value !== savedName.value.last
+);
 const savingName = ref(false);
 const nameNote = ref("");
 const nameFailed = ref(false);
@@ -145,6 +152,7 @@ onMounted(async () => {
 	const profile = await call("frappe.client.get", { doctype: "User", name: user });
 	firstName.value = profile.first_name || "";
 	lastName.value = profile.last_name || "";
+	savedName.value = { first: firstName.value, last: lastName.value };
 });
 
 async function saveName() {
@@ -156,6 +164,7 @@ async function saveName() {
 			fieldname: { first_name: firstName.value, last_name: lastName.value },
 		});
 		greetedName.value = firstName.value;
+		savedName.value = { first: firstName.value, last: lastName.value };
 		showNameNote("Saved.", false);
 	} catch (e) {
 		showNameNote(errorText(e), true);
@@ -181,11 +190,6 @@ async function changePassword() {
 		showPasswordNote(errorText(e), true);
 		savingPassword.value = false;
 	}
-}
-
-async function logout() {
-	await call("logout");
-	window.location.href = "/trivia-tap/join";
 }
 
 function showNameNote(text, failed) {
