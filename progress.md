@@ -1,5 +1,36 @@
 # Progress
 
+## Phase 18: Host avatar and stats (2026-10-01)
+
+Spec: `specs/phase-18-host-avatar-stats.md`.
+
+### Done
+
+- The profile header avatar opens a picture dialog: a hover tooltip, then
+  left and right arrows (and arrow keys) through the initial and the avatar
+  pack, saved on Save. It stores the avatar URL in `User.user_image`, so Desk
+  shows it too. An uploaded Desk photo stays on offer as "Your photo".
+- `HostAvatar` shows the image or the initial in the bar, the menu and the
+  profile header. `user_image` comes with the page boot.
+- `trivia_tap.api.get_host_stats` counts Ended games, players who were not
+  kicked, and quizzes the host owns. The profile header card shows the three.
+- Tests in `test_host_stats.py`: zeros for a new host, Cancelled lobbies and
+  kicked players left out, another host's games not counted. Full suite: 79
+  tests pass.
+
+### Verified
+
+`yarn build` and pre-commit pass. In the browser, desktop and phone, dark and
+light: a saved pick shows at once in the bar, survives a reload and shows in
+the menu. Stepping and Escape save nothing. An uploaded photo opens as
+"Your photo · 1 / 26". Stats read 140, 2,835 and 5
+for Administrator.
+
+### Notes
+
+- `IntegrationTestCase` rolls back per class, not per test, so the stats tests
+  clear their hosts' rows in `setUp`.
+
 ## Phase 17: Host account menu (2026-10-01)
 
 Spec: `specs/phase-17-host-account-menu.md`.
