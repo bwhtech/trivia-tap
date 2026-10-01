@@ -8,10 +8,15 @@ says nothing about the games a host has run.
 
 ## Avatar
 
-The profile page gets an **Avatar** card under the header card: the initial
-first, then the active avatar pack as a grid. A click saves at once, as the
-player picker does, with no Save button. The current choice carries the mint
-ring the join picker uses.
+The avatar in the profile header card is a button. Hover or focus shows a
+pencil over it and a "Change profile picture" tooltip. A click opens a dialog
+with one large picture between left and right arrows. The arrows, and the
+arrow keys, step through the initial and the active avatar pack, wrapping at
+both ends. A caption names the choice and its place, such as "Panda · 4 / 25".
+Save stores it. Cancel, Escape or a click outside leaves it as it was.
+
+A photo uploaded in Desk is not in the pack. The dialog then offers it first
+as "Your photo", so Save cannot drop it by accident.
 
 The pick is stored as the avatar's URL in `User.user_image`, through
 `frappe.client.set_value` on the host's own User, as the name already is. No new
@@ -39,8 +44,9 @@ They come from one call, `trivia_tap.api.get_host_stats()`. It counts for
    out kicked players, and another host's games count for nobody else.**
 2. Stats on the header card. **Feedback: a host with games sees real numbers,
    a new host sees zeros.**
-3. Avatar card and image in the bar. **Feedback: a pick shows at once in the
-   bar and survives a reload. Picking the initial brings the letter back.**
+3. Avatar dialog and image in the bar. **Feedback: a saved pick shows at once
+   in the bar and survives a reload, stepping alone saves nothing, and an
+   uploaded photo is still on offer.**
 
 ## Out of scope
 

@@ -4,7 +4,7 @@
 		<div class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 p-5 pb-20 sm:p-8 sm:pb-20">
 			<div class="flex flex-col gap-5 rounded-2xl border border-haze bg-dusk p-4 sm:p-5">
 				<div class="flex items-center gap-4">
-					<HostAvatar class="size-16 text-3xl" />
+					<HostAvatarPicker />
 					<div class="min-w-0">
 						<h1
 							class="truncate font-display text-2xl font-extrabold text-paper sm:text-3xl"
@@ -27,8 +27,6 @@
 					</div>
 				</dl>
 			</div>
-
-			<HostAvatarPicker />
 
 			<form
 				class="flex flex-col gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
@@ -131,7 +129,6 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { call, errorText } from "@/api";
 import { firstName as greetedName } from "@/host";
-import HostAvatar from "@/components/HostAvatar.vue";
 import HostAvatarPicker from "@/components/HostAvatarPicker.vue";
 import HostBar from "@/components/HostBar.vue";
 import PasswordInput from "@/components/PasswordInput.vue";
