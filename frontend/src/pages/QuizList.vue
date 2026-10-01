@@ -2,19 +2,9 @@
 	<div class="flex h-full flex-col overflow-y-auto bg-night">
 		<HostBar />
 		<div class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 p-5 pb-20 sm:p-8 sm:pb-20">
-			<div class="flex items-end justify-between gap-4">
-				<div>
-					<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
-						Host
-					</p>
-					<h1 class="mt-2 font-display text-4xl font-extrabold text-paper sm:text-5xl">
-						Your quizzes
-					</h1>
-				</div>
-				<RouterLink class="ctl ctl-go shrink-0 whitespace-nowrap" to="/host/quizzes/new">
-					New quiz
-				</RouterLink>
-			</div>
+			<h1 class="font-display text-4xl font-extrabold text-paper sm:text-5xl">
+				Your quizzes
+			</h1>
 
 			<p v-if="error" class="text-alert">{{ error }}</p>
 
@@ -37,7 +27,9 @@
 					<button class="ctl" @click="remove(quiz)">Delete</button>
 				</div>
 			</div>
-			<p v-else-if="loaded" class="text-paper/50">No quizzes yet. Make your first one.</p>
+			<p v-else-if="loaded" class="text-paper/50">
+				No quizzes yet. Make your first one with New quiz.
+			</p>
 		</div>
 	</div>
 </template>

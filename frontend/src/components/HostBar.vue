@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="flex shrink-0 items-center gap-x-4 border-b border-haze px-4 py-3 sm:gap-x-5 sm:px-6"
+		class="flex h-16 shrink-0 items-center gap-x-4 border-b border-haze px-4 sm:gap-x-6 sm:px-6"
 	>
 		<RouterLink
 			class="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold text-paper"
@@ -10,34 +10,126 @@
 			<img alt="" class="size-7 rounded-md" :src="LOGO_URL" />
 			<span class="hidden sm:inline">TriviaTap</span>
 		</RouterLink>
-		<nav class="flex items-center gap-2">
-			<RouterLink class="ctl" :data-on="isHosting" to="/host">Host</RouterLink>
-			<RouterLink class="ctl" :data-on="isAuthoring" to="/host/quizzes">Quizzes</RouterLink>
+		<nav class="-mb-px flex items-stretch gap-4 self-stretch sm:gap-5">
+			<RouterLink class="tab" :data-on="isPlaying" to="/host">Play</RouterLink>
+			<RouterLink class="tab" :data-on="isLibrary" to="/host/quizzes">Library</RouterLink>
 		</nav>
 		<RouterLink
-			class="ctl ml-auto min-w-0 gap-1"
-			:data-on="isProfile"
-			to="/host/profile"
-			title="Your profile"
+			class="ctl ctl-go ml-auto shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
+			to="/host/quizzes/new"
+			aria-label="New quiz"
 		>
-			<span class="truncate">Hi, {{ firstName }}</span>
+			<LucidePlus class="size-4" />
+			<span class="hidden sm:inline">New quiz</span>
 		</RouterLink>
-		<ThemeButton
-			class="fixed bottom-4 right-4 z-20 flex size-11 items-center justify-center rounded-full border border-haze bg-dusk text-lg shadow-lg transition hover:border-paper"
-		/>
+		<button
+			class="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand font-display text-lg font-extrabold text-sunk transition hover:brightness-110"
+			popovertarget="account-menu"
+			:aria-label="`Account: ${firstName}`"
+		>
+			{{ initial }}
+		</button>
+		<div
+			id="account-menu"
+			popover
+			class="account-menu fixed m-0 w-64 rounded-2xl border border-haze bg-dusk p-2 text-paper shadow-2xl"
+		>
+			<div class="px-3 pb-3 pt-2">
+				<p class="truncate font-display text-lg font-bold">{{ firstName }}</p>
+				<p class="mt-0.5 truncate font-mono text-xs text-paper/50">{{ user }}</p>
+			</div>
+			<RouterLink class="menu-item" to="/host/profile" @click="closeMenu">
+				<LucideUser class="size-4" />
+				Profile
+			</RouterLink>
+			<div class="flex items-center justify-between gap-2 px-3 py-2">
+				<span class="text-sm">Theme</span>
+				<div
+					class="flex rounded-full border border-haze p-0.5"
+					role="group"
+					aria-label="Theme"
+				>
+					<button
+						v-for="option in THEMES"
+						:key="option"
+						class="rounded-full px-2.5 py-1 text-xs capitalize text-paper/60 transition hover:text-paper aria-pressed:bg-paper aria-pressed:font-semibold aria-pressed:text-night"
+						:aria-pressed="theme === option"
+						@click="theme = option"
+					>
+						{{ option }}
+					</button>
+				</div>
+			</div>
+			<hr class="my-1 border-haze" />
+			<button class="menu-item w-full" @click="logout">
+				<LucideLogOut class="size-4" />
+				Log out
+			</button>
+		</div>
 	</header>
 </template>
 
 <script setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { firstName } from "@/host";
-import ThemeButton from "@/components/ThemeButton.vue";
-import { LOGO_URL } from "@/theme";
+import { firstName, initial, logout } from "@/host";
+import { LOGO_URL, theme } from "@/theme";
+
+const THEMES = ["auto", "light", "dark"];
 
 const route = useRoute();
+const user = window.session_user;
 
-const isHosting = computed(() => route.path === "/host");
-const isAuthoring = computed(() => route.path.startsWith("/host/quizzes"));
-const isProfile = computed(() => route.path === "/host/profile");
+const isPlaying = computed(() => route.path === "/host");
+const isLibrary = computed(() => route.path.startsWith("/host/quizzes"));
+
+function closeMenu() {
+	document.getElementById("account-menu").hidePopover();
+}
 </script>
+
+<style scoped>
+.tab {
+	display: flex;
+	align-items: center;
+	border-bottom: 2px solid transparent;
+	color: rgb(var(--paper) / 0.55);
+	font-weight: 500;
+	transition: color 0.15s;
+}
+
+.tab:hover,
+.tab[data-on="true"] {
+	color: rgb(var(--paper));
+}
+
+.tab[data-on="true"] {
+	border-bottom-color: rgb(var(--accent));
+	font-weight: 600;
+}
+
+/* Popovers open centred in the top layer; pin this one under the avatar. */
+.account-menu {
+	inset: 4.25rem 1rem auto auto;
+}
+
+@media (min-width: 640px) {
+	.account-menu {
+		right: 1.5rem;
+	}
+}
+
+.menu-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	border-radius: 0.75rem;
+	padding: 0.6rem 0.75rem;
+	font-size: 0.875rem;
+	text-align: left;
+}
+
+.menu-item:hover {
+	background: rgb(var(--paper) / 0.08);
+}
+</style>
