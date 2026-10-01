@@ -10,6 +10,8 @@
 	--haze: 42 58 51;
 	--paper: 238 248 243;
 	--alert: 255 90 54;
+	/* Ink on an alert fill: dark reads on the bright red, white on the deep one. */
+	--on-alert: 10 16 14;
 	--accent: 32 238 160;
 	--ok: 23 176 190;
 }
@@ -27,6 +29,7 @@
 	--haze: 199 222 211;
 	--paper: 13 19 17;
 	--alert: 214 54 15;
+	--on-alert: 255 255 255;
 	--accent: 10 122 82;
 	--ok: 10 122 133;
 }
@@ -39,6 +42,7 @@
 		--haze: 199 222 211;
 		--paper: 13 19 17;
 		--alert: 214 54 15;
+		--on-alert: 255 255 255;
 		--accent: 10 122 82;
 		--ok: 10 122 133;
 	}
@@ -137,13 +141,15 @@ body {
 }
 
 .ctl-danger {
-	background: #ff5a36;
-	border-color: #ff5a36;
-	color: #0a100e;
+	background: rgb(var(--alert));
+	border-color: transparent;
+	color: rgb(var(--on-alert));
 	font-weight: 800;
 }
 
 .ctl-danger:hover:not(:disabled) {
+	border-color: transparent;
+	color: rgb(var(--on-alert));
 	filter: brightness(1.1);
 }
 
