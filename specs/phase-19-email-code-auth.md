@@ -11,11 +11,11 @@ Account (TriviaTap, Mailpit in dev).
 ## Flows
 
 ```
-Sign up:  name + email + password + confirm -> send_code(email, "Sign Up")
+Sign up:  name + email + password + confirm -> send_code(email, "sign_up")
           code -> sign_up(name, email, password, code) -> logged in, reload
-Forgot:   email -> send_code(email, "Reset Password")
+Forgot:   email -> send_code(email, "reset_password")
           code + new password + confirm -> reset_password(email, code, password) -> logged in, reload
-Code log in: email -> send_code(email, "Log In")
+Code log in: email -> send_code(email, "log_in")
           code -> login_with_code(email, code) -> logged in, reload
 Log in:   email + password -> frappe /api/method/login (unchanged)
 ```
@@ -41,10 +41,16 @@ has a back link to fix the email.
 Guest, POST, rate limited per IP. It answers the same way whether or not the
 email has an account, so the form cannot probe for accounts:
 
-- Sign Up: refused when sign up is disabled. An email that has an account gets
+- sign_up: refused when sign up is disabled. An email that has an account gets
   a mail that says so and points to log in, not a code.
-- Reset Password, Log In: mails a code only to an enabled user who is not
+- reset_password, log_in: mails a code only to an enabled user who is not
   Administrator. Any other email gets nothing.
+
+The mail goes out from a background job in every case, so the response time
+does not tell either.
+
+Sign up checks the password with frappe's `test_password_strength` before it
+asks for a code, so a weak password fails before the host opens their inbox.
 
 ## Actions
 
@@ -55,6 +61,12 @@ email has an account, so the form cannot probe for accounts:
 - `login_with_code(email, code)`: checks the code and logs the user in.
 
 All three are guest, POST and rate limited per IP.
+
+## Branding
+
+Frappe signs its mails with Website Settings `app_name` and `app_logo`, which
+said "Frappe". The `brand_site` patch (also run after install) sets them to
+TriviaTap and its logo when they are unset or still "Frappe".
 
 ## Tracer bullet
 

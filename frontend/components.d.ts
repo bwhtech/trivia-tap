@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AnswerGrid: typeof import('./src/components/AnswerGrid.vue')['default']
     AvatarPic: typeof import('./src/components/AvatarPic.vue')['default']
+    CodeStep: typeof import('./src/components/CodeStep.vue')['default']
     ConfirmDialog: typeof import('./src/components/ConfirmDialog.vue')['default']
     DrainRing: typeof import('./src/components/DrainRing.vue')['default']
     HostAvatar: typeof import('./src/components/HostAvatar.vue')['default']

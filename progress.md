@@ -1,5 +1,26 @@
 # Progress
 
+## Phase 19: Email codes for sign up, reset and log in (2026-10-02)
+
+Spec: `specs/phase-19-email-code-auth.md`.
+
+### Done
+
+- `trivia_tap/email_code.py`: `EmailCode` keeps a 6-digit code hashed in Redis for 10 minutes, 5 tries (atomic INCR), 30 second resend throttle per email.
+- `trivia_tap/auth.py`: `send_code` (mail from a background job, same answer whether or not the email has an account), `sign_up` now needs the code, `reset_password` hands a minted frappe reset key to frappe's `update_password`, `login_with_code`.
+- Login page: one code step (`CodeStep.vue`) shared by sign up, forgot password and code log in. Sign up checks password strength before mailing.
+- `brand_site` patch and `after_install`: Website Settings app name and logo set to TriviaTap, so mails no longer carry the Frappe wordmark.
+- Tests: 14 in `trivia_tap/tests/test_auth.py`.
+
+### Exit criteria verified
+
+Over HTTP with codes read from Mailpit, and in a headless browser: weak password stops before any mail, wrong code refused, sign up lands on `/host`, forgot password sets the new password and logs in, code log in logs in, quick resend shows "Wait a few seconds", an existing email on sign up gets the "already have an account" mail.
+
+### Notes
+
+- Frappe skips the password policy when `frappe.in_test`, so the test for "a failed sign up keeps the code" fails the insert with a patch.
+- `test_password_strength` rejects `user_data` over HTTP (typed as tuple), so the SPA sends only the password. The server's sign up still checks with the name and email.
+
 ## Phase 18: Host avatar and stats (2026-10-01)
 
 Spec: `specs/phase-18-host-avatar-stats.md`.

@@ -18,6 +18,8 @@ add_to_apps_screen = [
 # bodies instead of form-encoded, per-key JSON-stringified values.
 use_json_request_body = True
 
+after_install = "trivia_tap.patches.brand_site.execute"
+
 fixtures = [{"dt": "Role", "filters": [["name", "in", ["Quiz Host"]]]}]
 
 permission_query_conditions = {
