@@ -12,6 +12,8 @@ declare module 'vue' {
     AvatarPic: typeof import('./src/components/AvatarPic.vue')['default']
     ConfirmDialog: typeof import('./src/components/ConfirmDialog.vue')['default']
     DrainRing: typeof import('./src/components/DrainRing.vue')['default']
+    HostAvatar: typeof import('./src/components/HostAvatar.vue')['default']
+    HostAvatarPicker: typeof import('./src/components/HostAvatarPicker.vue')['default']
     HostBar: typeof import('./src/components/HostBar.vue')['default']
     LucideEye: typeof import('~icons/lucide/eye')['default']
     LucideEyeOff: typeof import('~icons/lucide/eye-off')['default']

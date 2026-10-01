@@ -2,21 +2,33 @@
 	<div class="flex h-full flex-col overflow-y-auto bg-night">
 		<HostBar />
 		<div class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 p-5 pb-20 sm:p-8 sm:pb-20">
-			<div class="flex items-center gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5">
-				<span
-					class="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand font-display text-3xl font-extrabold text-sunk"
-				>
-					{{ initial }}
-				</span>
-				<div class="min-w-0">
-					<h1
-						class="truncate font-display text-2xl font-extrabold text-paper sm:text-3xl"
-					>
-						{{ fullName }}
-					</h1>
-					<p class="truncate font-mono text-xs text-paper/50">{{ user }}</p>
+			<div class="flex flex-col gap-5 rounded-2xl border border-haze bg-dusk p-4 sm:p-5">
+				<div class="flex items-center gap-4">
+					<HostAvatar class="size-16 text-3xl" />
+					<div class="min-w-0">
+						<h1
+							class="truncate font-display text-2xl font-extrabold text-paper sm:text-3xl"
+						>
+							{{ fullName }}
+						</h1>
+						<p class="truncate font-mono text-xs text-paper/50">{{ user }}</p>
+					</div>
 				</div>
+				<dl v-if="stats" class="grid grid-cols-3 gap-4 border-t border-haze pt-4">
+					<div
+						v-for="stat in STATS"
+						:key="stat.key"
+						class="flex flex-col-reverse justify-end gap-1"
+					>
+						<dt class="font-mono text-[11px] text-paper/50">{{ stat.label }}</dt>
+						<dd class="font-display text-3xl font-extrabold text-paper">
+							{{ stats[stat.key].toLocaleString() }}
+						</dd>
+					</div>
+				</dl>
 			</div>
+
+			<HostAvatarPicker />
 
 			<form
 				class="flex flex-col gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
@@ -118,13 +130,22 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { call, errorText } from "@/api";
-import { firstName as greetedName, initial } from "@/host";
+import { firstName as greetedName } from "@/host";
+import HostAvatar from "@/components/HostAvatar.vue";
+import HostAvatarPicker from "@/components/HostAvatarPicker.vue";
 import HostBar from "@/components/HostBar.vue";
 import PasswordInput from "@/components/PasswordInput.vue";
+
+const STATS = [
+	{ key: "games_hosted", label: "Games hosted" },
+	{ key: "players_reached", label: "Players reached" },
+	{ key: "quizzes_written", label: "Quizzes written" },
+];
 
 const route = useRoute();
 const router = useRouter();
 const user = window.session_user;
+const stats = ref(null);
 
 const firstName = ref("");
 const lastName = ref("");
@@ -149,6 +170,7 @@ const passwordFailed = ref(false);
 
 onMounted(async () => {
 	if (passwordChanged) router.replace({ query: {} });
+	call("trivia_tap.api.get_host_stats").then((result) => (stats.value = result));
 	const profile = await call("frappe.client.get", { doctype: "User", name: user });
 	firstName.value = profile.first_name || "";
 	lastName.value = profile.last_name || "";

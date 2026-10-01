@@ -23,20 +23,23 @@
 			<span class="hidden sm:inline">New quiz</span>
 		</RouterLink>
 		<button
-			class="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand font-display text-lg font-extrabold text-sunk transition hover:brightness-110"
+			class="shrink-0 rounded-full transition hover:brightness-110"
 			popovertarget="account-menu"
 			:aria-label="`Account: ${firstName}`"
 		>
-			{{ initial }}
+			<HostAvatar class="size-10 text-lg" />
 		</button>
 		<div
 			id="account-menu"
 			popover
 			class="account-menu fixed m-0 w-64 rounded-2xl border border-haze bg-dusk p-2 text-paper shadow-2xl"
 		>
-			<div class="px-3 pb-3 pt-2">
-				<p class="truncate font-display text-lg font-bold">{{ firstName }}</p>
-				<p class="mt-0.5 truncate font-mono text-xs text-paper/50">{{ user }}</p>
+			<div class="flex items-center gap-3 px-3 pb-3 pt-2">
+				<HostAvatar class="size-10 text-lg" />
+				<div class="min-w-0">
+					<p class="truncate font-display text-lg font-bold">{{ firstName }}</p>
+					<p class="mt-0.5 truncate font-mono text-xs text-paper/50">{{ user }}</p>
+				</div>
 			</div>
 			<RouterLink class="menu-item" to="/host/profile" @click="closeMenu">
 				<LucideUser class="size-4" />
@@ -72,7 +75,8 @@
 <script setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { firstName, initial, logout } from "@/host";
+import { firstName, logout } from "@/host";
+import HostAvatar from "@/components/HostAvatar.vue";
 import { LOGO_URL, theme } from "@/theme";
 
 const THEMES = ["auto", "light", "dark"];

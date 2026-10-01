@@ -5,6 +5,7 @@ import time
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.query_builder.functions import Count
 from frappe.rate_limiter import rate_limit
 from frappe.utils import now_datetime, strip_html_tags
 
@@ -172,6 +173,16 @@ def list_quizzes() -> list[dict]:
 		# ponytail: one count per quiz; group them if a host ever owns hundreds
 		quiz["question_count"] = frappe.db.count("TT Question", {"parent": quiz.name})
 	return quizzes
+
+
+@frappe.whitelist()
+def get_host_stats() -> dict:
+	host = frappe.session.user
+	return {
+		"games_hosted": frappe.db.count("TT Session", {"host": host, "status": "Ended"}),
+		"players_reached": count_players_reached(host),
+		"quizzes_written": frappe.db.count("TT Quiz", {"owner": host}),
+	}
 
 
 # Guests join by design (no login); rate-limited, PIN-gated, and input is sanitized below.
@@ -394,6 +405,19 @@ def get_rank(session: str, participant: Document) -> int:
 		"TT Participant", {"session": session, "kicked": 0, "score": (">", participant.score)}
 	)
 	return ahead + 1
+
+
+def count_players_reached(host: str) -> int:
+	participant = frappe.qb.DocType("TT Participant")
+	session = frappe.qb.DocType("TT Session")
+	query = (
+		frappe.qb.from_(participant)
+		.join(session)
+		.on(participant.session == session.name)
+		.select(Count("*"))
+		.where((session.host == host) & (session.status == "Ended") & (participant.kicked == 0))
+	)
+	return query.run()[0][0]
 
 
 def get_lobby_state(session: Document) -> dict:
