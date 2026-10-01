@@ -67,7 +67,7 @@
 						required
 					/>
 				</label>
-				<CodeStep v-else v-model="code" @resend="sendCode" />
+				<CodeStep v-else v-model="code" @resend="sendCode" @complete="codeComplete" />
 				<div v-if="asksPassword" class="flex flex-col gap-2">
 					<span class="flex items-baseline justify-between">
 						<label
@@ -243,6 +243,7 @@ function switchTo(next) {
 }
 
 async function submit() {
+	if (busy.value) return;
 	error.value = "";
 	if (asksPassword.value && flow.value !== "login" && password.value !== confirmPassword.value) {
 		error.value = "Passwords do not match.";
@@ -263,6 +264,12 @@ async function submit() {
 		error.value = errorText(e);
 	}
 	busy.value = false;
+}
+
+// reset still needs the new password, every other flow is done once the code is in
+function codeComplete() {
+	if (asksPassword.value) document.getElementById("password").focus();
+	else submit();
 }
 
 async function sendCode() {

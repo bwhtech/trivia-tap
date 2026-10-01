@@ -16,30 +16,41 @@
 				{{ wait > 0 ? `Resend in ${wait}s` : "Resend" }}
 			</button>
 		</span>
-		<input
-			id="email-code"
-			v-model="code"
-			class="w-full rounded-2xl border border-haze bg-dusk px-4 py-3.5 font-mono text-lg font-medium tracking-[0.3em] text-paper placeholder:text-paper/25 focus:border-accent focus:ring-0"
-			placeholder="000000"
-			inputmode="numeric"
-			autocomplete="one-time-code"
-			maxlength="6"
-			pattern="\d{6}"
-			title="The 6-digit code from your email"
+		<PinInputRoot
+			v-model="digits"
+			class="grid grid-cols-6 gap-2"
+			type="number"
+			otp
 			required
-			autofocus
-		/>
+			@complete="emit('complete')"
+		>
+			<PinInputInput
+				v-for="(digit, index) in CODE_LENGTH"
+				:key="digit"
+				:index="index"
+				:id="index === 0 ? 'email-code' : undefined"
+				:aria-label="`Digit ${digit} of ${CODE_LENGTH}`"
+				:autofocus="index === 0"
+				class="h-14 w-full rounded-2xl border border-haze bg-dusk p-0 text-center font-mono text-2xl font-bold text-paper caret-accent focus:border-accent focus:ring-0"
+			/>
+		</PinInputRoot>
 	</div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
+import { PinInputInput, PinInputRoot } from "reka-ui";
 
+const CODE_LENGTH = 6;
 // matches RESEND_AFTER_SECONDS on the server
 const RESEND_AFTER = 30;
 
-const emit = defineEmits(["resend"]);
+const emit = defineEmits(["resend", "complete"]);
 const code = defineModel({ type: String });
+const digits = computed({
+	get: () => [...code.value],
+	set: (value) => (code.value = value.join("")),
+});
 
 const wait = ref(RESEND_AFTER);
 let timer;
