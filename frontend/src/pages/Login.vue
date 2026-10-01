@@ -3,7 +3,7 @@
 		<ThemeButton
 			class="absolute right-4 top-4 text-lg leading-none opacity-60 transition hover:opacity-100"
 		/>
-		<div class="m-auto w-full max-w-sm">
+		<div class="mx-auto mb-auto mt-[8vh] w-full max-w-sm">
 			<p
 				class="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.28em] text-accent"
 			>
@@ -18,7 +18,11 @@
 				<img alt="" class="size-14 rounded-2xl" :src="LOGO_URL" />
 				TriviaTap
 			</h1>
-			<p class="mt-3 text-paper/50">{{ current.blurb }}</p>
+			<p v-if="codeSent" class="mt-3 text-paper/50">
+				Enter the code we sent to <span class="text-paper">{{ email }}</span
+				>.
+			</p>
+			<p v-else class="mt-3 text-paper/50">{{ current.blurb }}</p>
 
 			<div class="mt-9 grid grid-cols-2 gap-1 rounded-2xl border border-haze bg-dusk p-1">
 				<button
@@ -63,13 +67,7 @@
 						required
 					/>
 				</label>
-				<CodeStep
-					v-else
-					v-model="code"
-					:email="email"
-					@back="codeSent = false"
-					@resend="sendCode"
-				/>
+				<CodeStep v-else v-model="code" @resend="sendCode" />
 				<div v-if="asksPassword" class="flex flex-col gap-2">
 					<span class="flex items-baseline justify-between">
 						<label
@@ -126,20 +124,12 @@
 				</button>
 				<p v-if="error" class="text-center text-sm text-alert">{{ error }}</p>
 				<button
-					v-if="flow === 'login'"
+					v-if="secondary"
 					type="button"
 					class="text-sm text-paper/45 hover:text-paper"
-					@click="switchTo('code_login')"
+					@click="secondary.go"
 				>
-					Log in with an email code instead
-				</button>
-				<button
-					v-else-if="flow !== 'signup'"
-					type="button"
-					class="text-sm text-paper/45 hover:text-paper"
-					@click="switchTo('login')"
-				>
-					Log in with your password
+					{{ secondary.label }}
 				</button>
 			</form>
 
@@ -189,7 +179,7 @@ const FLOWS = {
 	code_login: {
 		tab: "login",
 		purpose: "log_in",
-		blurb: "We'll email you a code to log in, no password needed.",
+		blurb: "We'll email you a code to log in.",
 		finish: "Log in",
 	},
 };
@@ -233,6 +223,17 @@ const FINISH = {
 	code_login: () =>
 		call("trivia_tap.auth.login_with_code", { email: email.value, code: code.value }),
 };
+
+// one way out of every screen, under the main button
+const secondary = computed(() => {
+	if (codeSent.value)
+		return { label: "Use a different email", go: () => (codeSent.value = false) };
+	return {
+		login: { label: "Log in with an email code instead", go: () => switchTo("code_login") },
+		code_login: { label: "Log in with your password", go: () => switchTo("login") },
+		forgot: { label: "Back to log in", go: () => switchTo("login") },
+	}[flow.value];
+});
 
 function switchTo(next) {
 	flow.value = next;
