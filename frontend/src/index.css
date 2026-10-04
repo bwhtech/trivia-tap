@@ -197,6 +197,7 @@ body {
 .field:focus {
 	outline: none;
 	border-color: rgb(var(--accent));
+	box-shadow: none;
 }
 
 .podium-rise {
