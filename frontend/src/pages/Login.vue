@@ -161,7 +161,7 @@ const TABS = [
 const FLOWS = {
 	login: {
 		tab: "login",
-		blurb: "Welcome back, quizmaster. The next round is yours to write.",
+		blurb: "Welcome back! Make a quiz and start a game.",
 		finish: "Log in",
 	},
 	signup: {
