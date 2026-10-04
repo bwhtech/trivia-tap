@@ -1,7 +1,7 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from trivia_tap.api import create_session, join_session
+from trivia_tap.api import create_session, join_session, lock_lobby
 
 HOST = "perm.host@example.com"
 OTHER_HOST = "perm.other@example.com"
@@ -73,3 +73,23 @@ class TestHostSeesOnlyTheirGames(IntegrationTestCase):
 		self.assertFalse(frappe.has_permission("TT Session", doc=self.session["session"]))
 		self.assertFalse(frappe.has_permission("TT Participant", doc=self.participant))
 		self.assertFalse(frappe.has_permission("TT Answer", doc=self.answer))
+
+	def test_host_cannot_write_sessions_through_the_document_api(self):
+		frappe.set_user(OTHER_HOST)
+
+		session = frappe.get_doc(
+			{"doctype": "TT Session", "quiz": self.quiz, "host": OTHER_HOST, "game_pin": "424242"}
+		)
+		with self.assertRaises(frappe.PermissionError):
+			session.insert()
+
+		frappe.set_user(HOST)
+		own_session = frappe.get_doc("TT Session", self.session["session"])
+		own_session.host = OTHER_HOST
+		with self.assertRaises(frappe.PermissionError):
+			own_session.save()
+
+	def test_host_still_controls_their_session(self):
+		frappe.set_user(HOST)
+
+		self.assertTrue(lock_lobby(self.session["session"])["lobby_locked"])

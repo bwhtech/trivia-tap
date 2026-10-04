@@ -4,6 +4,7 @@ import frappe
 from frappe import _
 from frappe.core.doctype.user.user import get_signup_limit, update_password
 from frappe.rate_limiter import rate_limit
+from frappe.twofactor import should_run_2fa
 from frappe.utils import cint, escape_html, get_url, validate_email_address
 from frappe.website.utils import is_signup_disabled
 
@@ -81,6 +82,9 @@ def login_with_code(email: str, code: str) -> None:
 	if not user:
 		frappe.throw(_("That code is wrong or has expired."))
 	email_code.clear()
+	# login_as skips frappe's two-factor check, so those users must use their password
+	if should_run_2fa(user):
+		frappe.throw(_("Your account needs two-factor login. Log in with your password."))
 	frappe.local.login_manager.login_as(user)
 
 

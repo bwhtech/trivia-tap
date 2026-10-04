@@ -1,5 +1,20 @@
 # Progress
 
+## Security: whitelisted method audit (2026-10-04)
+
+Spec: `specs/security-whitelisted-methods.md`.
+
+### Done
+
+- Quiz Host keeps only `if_owner` read on TT Session. The host methods in `api.py` are the only write path and save with `ignore_permissions` after `get_host_session` checks the caller.
+- `get_player` replaces `get_session_by_pin` plus `get_participant_by_token` in the token-gated guest methods. A wrong PIN and a wrong token raise the same `PermissionError`.
+- `submit_answer`, `get_state` and `get_result` are rate limited per IP only. `get_state` and `get_result` are POST only.
+- `login_with_code` refuses users who must pass Frappe 2FA.
+
+### Exit criteria verified
+
+Over HTTP as two Quiz Hosts: creating a session on another host's quiz and editing your own session's `host` through `/api/resource` both return `PermissionError`. A PIN scan with rotating tokens gets only 403s, then 429 after 60 requests. Headless browser as a plain Quiz Host: unlock lobby, guest joins, start, answer, podium.
+
 ## Phase 22: Slide quiz editor (2026-10-04)
 
 Spec: `specs/phase-22-slide-editor.md`.

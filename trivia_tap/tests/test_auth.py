@@ -138,6 +138,15 @@ class TestLoginWithCode(CodeTestCase):
 		with self.assertRaisesRegex(frappe.ValidationError, "wrong or has expired"):
 			login_with_code(EMAIL, code)
 
+	def test_refuses_users_who_need_two_factor(self):
+		self.make_host()
+		code = self.mailed_code("log_in")
+
+		with patch("trivia_tap.auth.should_run_2fa", return_value=True):
+			with self.assertRaisesRegex(frappe.ValidationError, "two-factor"):
+				login_with_code(EMAIL, code)
+		self.login_manager.login_as.assert_not_called()
+
 
 def wrong(code):
 	return f"{(int(code) + 1) % 10**6:06}"

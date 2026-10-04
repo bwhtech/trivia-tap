@@ -28,7 +28,7 @@ def create_session(quiz: str) -> dict:
 			"game_pin": generate_game_pin(),
 			"status": "Lobby",
 		}
-	).insert()
+	).insert(ignore_permissions=True)
 	return {"session": session.name, "game_pin": session.game_pin}
 
 
@@ -128,7 +128,7 @@ def start_session(session: str) -> dict:
 		frappe.throw(_("No participants have joined yet"))
 	session_doc.status = "Active"
 	session_doc.started_at = now_datetime()
-	session_doc.save()
+	session_doc.save(ignore_permissions=True)
 	engine.enqueue_game_loop(session_doc)
 	publish_session_event(session_doc, {"type": "session_started"})
 	return {"ok": True}
@@ -159,7 +159,7 @@ def end_session(session: str) -> dict:
 	if session_doc.status == "Lobby":
 		session_doc.status = "Cancelled"
 		session_doc.ended_at = now_datetime()
-		session_doc.save()
+		session_doc.save(ignore_permissions=True)
 		publish_session_event(session_doc, {"type": "session_ended"})
 	elif session_doc.status == "Active":
 		engine.end_active_session(session_doc)
@@ -228,13 +228,12 @@ def join_session(pin: str, nickname: str, avatar: str | None = None) -> dict:
 # Guests play by design; rate-limited and gated by the participant token.
 # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(key="token", limit=30, seconds=60)
+@rate_limit(limit=30, seconds=60)
 def submit_answer(pin: str, token: str, question_row: str, selected_option: str) -> dict:
 	received_at = time.time()
-	session = get_session_by_pin(pin)
+	session, participant = get_player(pin, token)
 	if session.status != "Active":
 		frappe.throw(_("Game is not active"))
-	participant = get_participant_by_token(session, token)
 
 	state = engine.get_state(session.name)
 	if not state or state.get("status") != "question" or state.get("question_row") != question_row:
@@ -267,11 +266,10 @@ def submit_answer(pin: str, token: str, question_row: str, selected_option: str)
 
 # Players are guests by design; the participant token gates every read below.
 # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
-@frappe.whitelist(allow_guest=True)
-@rate_limit(key="token", limit=60, seconds=60)
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=60, seconds=60)
 def get_state(pin: str, token: str) -> dict:
-	session = get_session_by_pin(pin)
-	participant = get_participant_by_token(session, token)
+	session, participant = get_player(pin, token)
 	result = {
 		"status": session.status,
 		"nickname": participant.nickname,
@@ -309,12 +307,11 @@ def get_state(pin: str, token: str) -> dict:
 
 # Guests play by design; rate-limited and gated by the participant token.
 # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
-@frappe.whitelist(allow_guest=True)
-@rate_limit(key="token", limit=60, seconds=60)
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=60, seconds=60)
 def get_result(pin: str, token: str, question_row: str) -> dict:
 	"""Own outcome for the result interstitial; the broadcast stays free of per-player data."""
-	session = get_session_by_pin(pin)
-	participant = get_participant_by_token(session, token)
+	session, participant = get_player(pin, token)
 	answer = frappe.db.get_value(
 		"TT Answer",
 		{"session": session.name, "participant": participant.name, "question_row": question_row},
@@ -338,8 +335,7 @@ def get_result(pin: str, token: str, question_row: str) -> dict:
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=10, seconds=60)
 def leave_session(pin: str, token: str) -> None:
-	session = get_session_by_pin(pin)
-	participant = get_participant_by_token(session, token)
+	session, participant = get_player(pin, token)
 	# ponytail: leave only matters in the lobby; mid-game the row must survive for scores
 	if session.status == "Lobby":
 		frappe.delete_doc("TT Participant", participant.name, ignore_permissions=True, force=True)
@@ -371,24 +367,30 @@ def get_live_host_session() -> Document | None:
 
 
 def get_session_by_pin(pin: str) -> Document:
-	pin = (pin or "").strip()
-	# Ended is allowed so a player who reloads on the podium still gets it back
-	name = pin and frappe.db.get_value(
-		"TT Session", {"game_pin": pin, "status": ("in", ("Lobby", "Active", "Ended"))}
-	)
+	name = find_session(pin)
 	if not name:
 		frappe.throw(_("Invalid game PIN"), frappe.DoesNotExistError)
 	return frappe.get_doc("TT Session", name)
 
 
-def get_participant_by_token(session: Document, token: str) -> Document:
-	name = frappe.db.get_value(
+def get_player(pin: str, token: str) -> tuple[Document, Document]:
+	# one error for a wrong PIN or a wrong token, so a PIN scanner cannot tell which games are live
+	session = find_session(pin)
+	participant = session and frappe.db.get_value(
 		"TT Participant",
-		{"session": session.name, "token_hash": hash_token(token or ""), "kicked": 0},
+		{"session": session, "token_hash": hash_token(token or ""), "kicked": 0},
 	)
-	if not name:
+	if not participant:
 		frappe.throw(_("Not a participant of this session"), frappe.PermissionError)
-	return frappe.get_doc("TT Participant", name)
+	return frappe.get_doc("TT Session", session), frappe.get_doc("TT Participant", participant)
+
+
+def find_session(pin: str) -> str | None:
+	pin = (pin or "").strip()
+	# Ended is allowed so a player who reloads on the podium still gets it back
+	return pin and frappe.db.get_value(
+		"TT Session", {"game_pin": pin, "status": ("in", ("Lobby", "Active", "Ended"))}
+	)
 
 
 def get_leaderboard(session: str) -> list[dict]:
@@ -437,7 +439,7 @@ def get_lobby_state(session: Document) -> dict:
 def set_lobby_locked(session: str, locked: bool) -> dict:
 	doc = get_host_session(session)
 	doc.lobby_locked = int(locked)
-	doc.save()
+	doc.save(ignore_permissions=True)
 	publish_lobby_update(doc)
 	return get_lobby_state(doc)
 
