@@ -8,11 +8,12 @@ Spec: `specs/phase-20-animated-qr.md`.
 
 - `AnimatedQr.vue`: a 2D canvas where every dark QR module is a dot. The dots pop in as the mascot outline (dark pixels of the logo), hold with a small bob, then arc into their module and settle to ink. The logo badge lands last.
 - Lobby code and fullscreen code both use it. `renderQr` and the data URL are gone from `Host.vue`.
+- Living badge: `scripts/build_mascot.py` cuts the logo into background, head, eyes and sparks (connected components of the dark ink, background refitted as a smooth gradient) and writes `trivia-tap-mascot.svg` with CSS keyframes: head bob, glance, blink, spark flash. Reduced motion stops it.
 - Fullscreen code: `rounded-3xl` is not in the frappe-ui radius scale and rendered square, now `rounded-2xl`. The dialog no longer draws a focus outline around itself.
 
 ### Exit criteria verified
 
-Headless browser on a live lobby: mascot frame, flight, settled frame. Both the lobby and the fullscreen settled frames decode with OpenCV to the join URL.
+Headless browser on a live lobby: mascot frame, flight, settled frame, then the badge keeps moving. Settled frames decode to the join URL (OpenCV and zxing-cpp before the live badge, zxing-cpp after).
 
 ## Phase 19: Email codes for sign up, reset and log in (2026-10-02)
 

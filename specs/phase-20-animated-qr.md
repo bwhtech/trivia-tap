@@ -13,7 +13,12 @@ Inspired by tree.icqr.com, where voxels of a tree fold into a QR.
   the logo's mint-to-green gradient.
 - After a short hold the dots travel on a slight arc to their module, staggered
   from the centre outwards, and settle to the QR ink colour.
-- The logo badge fades in over the middle once every dot has landed.
+- The logo badge pops in over the middle once every dot has landed, and stays
+  alive: the mascot bobs, glances, blinks and its sparks flash, on a loop.
+- The live badge is `trivia-tap-mascot.svg`, cut from the logo PNG into layers
+  by `scripts/build_mascot.py` and animated with CSS inside the SVG, so any
+  `<img>` can show it. It sits over the canvas as an `<img>`, because a canvas
+  would freeze it.
 - The fullscreen code is the same component, so opening it plays the
   animation again at projector size.
 - `prefers-reduced-motion: reduce` draws the finished QR at once.

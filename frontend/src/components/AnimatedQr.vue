@@ -1,11 +1,23 @@
 <template>
-	<canvas ref="canvas" role="img" :aria-label="label" />
+	<div role="img" :aria-label="label">
+		<div class="relative size-full">
+			<canvas ref="canvas" class="size-full" />
+			<div
+				v-if="hasLogo"
+				class="absolute left-1/2 top-1/2 transition duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]"
+				:class="badgeShown ? 'opacity-100' : 'opacity-0'"
+				:style="badgeStyle"
+			>
+				<img alt="" class="size-full" :src="MASCOT_URL" />
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup>
 import QRCode from "qrcode";
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LOGO_URL } from "@/theme";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { LOGO_URL, MASCOT_URL } from "@/theme";
 
 const props = defineProps({
 	url: { type: String, required: true },
@@ -20,11 +32,20 @@ const POP_MS = 500;
 const HOLD_MS = 900;
 const STAGGER_MS = 600;
 const FLY_MS = 1100;
-const BADGE_MS = 350;
 const BADGE_SHARE = 0.2;
 
 const canvas = ref(null);
+const hasLogo = ref(false);
+const badgeShown = ref(false);
 let frame = 0;
+
+// The badge is an <img> over the canvas: drawn into the canvas, the mascot SVG would freeze.
+const badgeStyle = computed(() => ({
+	width: `${BADGE_SHARE * 124}%`,
+	padding: `${BADGE_SHARE * 12}%`,
+	background: PAPER,
+	transform: `translate(-50%, -50%) scale(${badgeShown.value ? 1 : 0.4})`,
+}));
 
 onMounted(play);
 onBeforeUnmount(() => cancelAnimationFrame(frame));
@@ -32,17 +53,18 @@ watch(() => props.url, play);
 
 async function play() {
 	cancelAnimationFrame(frame);
+	badgeShown.value = false;
 	const element = canvas.value;
-	const padding = parseFloat(getComputedStyle(element).paddingLeft) * 2;
-	const size = Math.round((element.clientWidth - padding) * window.devicePixelRatio);
+	const size = Math.round(element.clientWidth * window.devicePixelRatio);
 	element.width = element.height = size;
 	const logo = await loadImage(LOGO_URL);
+	hasLogo.value = Boolean(logo);
 	const dots = planDots(props.url, size, logo);
 	const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	const start = performance.now() - (reduced ? 1e9 : 0);
 	const step = (now) => {
-		const done = draw(element.getContext("2d"), size, dots, logo, now - start);
-		if (!done) frame = requestAnimationFrame(step);
+		badgeShown.value = draw(element.getContext("2d"), size, dots, now - start);
+		if (!badgeShown.value) frame = requestAnimationFrame(step);
 	};
 	frame = requestAnimationFrame(step);
 }
@@ -104,7 +126,7 @@ function mascotOutline(logo, size) {
 	return points;
 }
 
-function draw(context, size, dots, logo, elapsed) {
+function draw(context, size, dots, elapsed) {
 	context.fillStyle = PAPER;
 	context.fillRect(0, 0, size, size);
 	const flyStart = POP_MS + HOLD_MS;
@@ -124,21 +146,7 @@ function draw(context, size, dots, logo, elapsed) {
 		context.roundRect(x - side / 2, y - side / 2, side, side, (side / 2) * (1 - flown));
 		context.fill();
 	}
-	const landed = flyStart + STAGGER_MS + FLY_MS;
-	const shown = progress(elapsed - landed, BADGE_MS);
-	if (logo && shown > 0) drawBadge(context, size, logo, easeOutBack(shown));
-	return shown >= 1;
-}
-
-function drawBadge(context, size, logo, scale) {
-	const badge = size * BADGE_SHARE * scale;
-	const pad = badge * 0.12;
-	const at = (size - badge) / 2;
-	context.globalAlpha = Math.min(1, scale);
-	context.fillStyle = PAPER;
-	context.fillRect(at - pad, at - pad, badge + pad * 2, badge + pad * 2);
-	context.drawImage(logo, at, at, badge, badge);
-	context.globalAlpha = 1;
+	return elapsed >= flyStart + STAGGER_MS + FLY_MS;
 }
 
 async function loadImage(src) {

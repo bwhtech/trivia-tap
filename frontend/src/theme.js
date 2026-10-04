@@ -2,6 +2,7 @@ import { ref, watch } from "vue";
 
 // A bound path: a static <img src> makes Vite try to bundle a file Frappe serves.
 export const LOGO_URL = "/assets/trivia_tap/images/trivia-tap-logo.png";
+export const MASCOT_URL = "/assets/trivia_tap/images/trivia-tap-mascot.svg";
 
 const STORAGE_KEY = "trivia-tap-theme";
 const NEXT = { auto: "light", light: "dark", dark: "auto" };
