@@ -1,0 +1,21 @@
+{
+	"branches": ["main"],
+	"plugins": [
+		["@semantic-release/commit-analyzer", { "preset": "angular" }],
+		"@semantic-release/release-notes-generator",
+		[
+			"@semantic-release/exec",
+			{
+				"prepareCmd": "sed -i -E 's/__version__ = \".*\"/__version__ = \"${nextRelease.version}\"/' trivia_tap/__init__.py"
+			}
+		],
+		[
+			"@semantic-release/git",
+			{
+				"assets": ["trivia_tap/__init__.py"],
+				"message": "chore(release): bump version to ${nextRelease.version} [skip ci]"
+			}
+		],
+		"@semantic-release/github"
+	]
+}
