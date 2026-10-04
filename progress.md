@@ -1,5 +1,20 @@
 # Progress
 
+## Phase 24: Join screen polish (2026-10-04)
+
+Spec: `specs/phase-24-join-polish.md`.
+
+### Done
+
+- Game PIN is six boxes from reka-ui `PinInput`, styled like `CodeStep`. Finishing the PIN, or arriving from the QR link with it pre-filled, focuses the nickname.
+- Chosen face shows at 56px beside the nickname input. A shuffle button inside the input replaces the "More" chip that wrapped onto its own line on a phone. The picked suggestion chip is highlighted.
+- Carousel faces are 48px with faded strip edges.
+- "Join game" stays disabled until the PIN has six digits and the nickname is not blank.
+
+### Exit criteria verified
+
+Headless browser at 390px and 1280px, dark and light: typed a live lobby PIN, focus moved to the nickname, picked a suggestion and a face, joined and landed in the lobby as that player. `?pin=` pre-fills the boxes and focuses the nickname.
+
 ## Phase 23: Reset password with an email link (2026-10-04)
 
 Spec: `specs/phase-23-password-reset-link.md`.

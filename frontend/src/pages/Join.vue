@@ -22,63 +22,95 @@
 				Type the PIN on the big screen, pick a face, and you're in.
 			</p>
 
-			<form class="mt-9 flex flex-col gap-6" @submit.prevent="join">
-				<label class="flex flex-col gap-2">
-					<span class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45">
+			<form class="mt-9 flex flex-col gap-7" @submit.prevent="join">
+				<div class="flex flex-col gap-2">
+					<label
+						class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+						for="game-pin"
+					>
 						Game PIN
-					</span>
-					<input
-						v-model="pin"
-						class="w-full rounded-2xl border border-haze bg-dusk py-4 text-center font-mono text-4xl font-bold tracking-[0.18em] text-paper placeholder:text-paper/20 focus:border-accent focus:ring-0"
-						placeholder="000000"
-						inputmode="numeric"
-						maxlength="6"
-						autocomplete="off"
-					/>
-				</label>
+					</label>
+					<PinInputRoot
+						v-model="pinDigits"
+						class="grid grid-cols-6 gap-2"
+						type="number"
+						placeholder="·"
+						@complete="nicknameInput?.focus()"
+					>
+						<PinInputInput
+							v-for="(digit, index) in PIN_LENGTH"
+							:key="digit"
+							:index="index"
+							:id="index === 0 ? 'game-pin' : undefined"
+							:aria-label="`PIN digit ${digit} of ${PIN_LENGTH}`"
+							:autofocus="index === 0 && !pin"
+							class="h-16 w-full rounded-2xl border border-haze bg-dusk p-0 text-center font-mono text-3xl font-bold text-paper caret-accent placeholder:text-paper/20 focus:border-accent focus:ring-0"
+						/>
+					</PinInputRoot>
+				</div>
 
-				<label class="flex flex-col gap-2">
+				<div class="flex flex-col gap-2">
 					<span class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45">
-						Nickname
+						You
 					</span>
-					<input
-						v-model="nickname"
-						class="w-full rounded-2xl border border-haze bg-dusk px-4 py-3.5 text-lg font-medium text-paper placeholder:text-paper/25 focus:border-accent focus:ring-0"
-						placeholder="Your name"
-						maxlength="20"
-						autocomplete="off"
-					/>
+					<div class="flex items-center gap-3">
+						<AvatarPic
+							:id="avatar"
+							:size="56"
+							class="ring-2 ring-mint ring-offset-2 ring-offset-night"
+						/>
+						<div class="relative min-w-0 flex-1">
+							<input
+								aria-label="Nickname"
+								ref="nicknameInput"
+								v-model="nickname"
+								class="w-full rounded-2xl border border-haze bg-dusk py-3.5 pl-4 pr-12 text-lg font-medium text-paper placeholder:text-paper/25 focus:border-accent focus:ring-0"
+								placeholder="Your nickname"
+								maxlength="20"
+								autocomplete="off"
+							/>
+							<button
+								type="button"
+								class="absolute inset-y-0 right-1.5 my-auto grid size-9 place-items-center rounded-xl text-paper/45 transition hover:bg-haze/60 hover:text-paper"
+								aria-label="More nickname ideas"
+								title="More nickname ideas"
+								@click="suggestions = suggestNicknames()"
+							>
+								<LucideShuffle class="size-4" />
+							</button>
+						</div>
+					</div>
 					<span class="flex flex-wrap items-center gap-2 pt-1">
 						<button
 							v-for="suggestion in suggestions"
 							:key="suggestion"
 							type="button"
-							class="rounded-full border border-haze px-3 py-1 text-sm text-paper/70 transition hover:border-accent hover:text-accent"
+							class="rounded-full border px-3 py-1 text-sm transition"
+							:class="
+								nickname === suggestion
+									? 'border-accent text-accent'
+									: 'border-haze text-paper/70 hover:border-accent hover:text-accent'
+							"
 							@click="nickname = suggestion"
 						>
 							{{ suggestion }}
 						</button>
-						<button
-							type="button"
-							class="rounded-full border border-haze px-3 py-1 text-sm text-paper/45 transition hover:border-paper hover:text-paper"
-							@click="suggestions = suggestNicknames()"
-						>
-							↻ More
-						</button>
 					</span>
-				</label>
+				</div>
 
-				<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-2">
 					<span class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45">
-						Your face
+						Swipe for a face
 					</span>
 					<!-- The bleed lives on the wrapper so the scroller's 50% end padding,
 					     which is what lets the first and last face reach the centre line,
 					     measures against the full-bleed width. -->
-					<div class="-mx-5">
+					<div
+						class="-mx-5 [mask-image:linear-gradient(to_right,transparent,#000_18%,#000_82%,transparent)]"
+					>
 						<div
 							ref="scroller"
-							class="no-scrollbar flex snap-x snap-mandatory gap-1 overflow-x-auto px-[calc(50%-22px)] py-1.5 motion-safe:scroll-smooth"
+							class="no-scrollbar flex snap-x snap-mandatory gap-1 overflow-x-auto px-[calc(50%-26px)] py-1.5 motion-safe:scroll-smooth"
 							@scroll="queuePick"
 						>
 							<!-- Only the face inside scales, so picking never reflows the row. -->
@@ -97,10 +129,10 @@
 									:class="
 										avatar === option.id
 											? 'bg-mint ring-2 ring-mint'
-											: 'scale-[0.62] opacity-55 hover:opacity-100'
+											: 'scale-75 opacity-60 hover:opacity-100'
 									"
 								>
-									<AvatarPic :id="option.id" :size="40" />
+									<AvatarPic :id="option.id" :size="48" />
 								</span>
 							</button>
 						</div>
@@ -110,11 +142,11 @@
 				<button
 					type="submit"
 					class="rounded-2xl bg-brand py-4 font-display text-xl font-extrabold text-sunk transition hover:brightness-110 disabled:opacity-50"
-					:disabled="joining"
+					:disabled="joining || !ready"
 				>
 					{{ joining ? "Joining…" : "Join game" }}
 				</button>
-				<p v-if="error" class="text-center text-sm text-alert">
+				<p v-if="error" class="text-center text-sm text-alert" role="alert">
 					{{ error }}
 				</p>
 			</form>
@@ -130,7 +162,8 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
+import { PinInputInput, PinInputRoot } from "reka-ui";
 import { useRoute, useRouter } from "vue-router";
 import { call, errorText } from "@/api";
 import { savePlayer } from "@/player";
@@ -144,13 +177,21 @@ import { LOGO_URL } from "@/theme";
 const route = useRoute();
 const router = useRouter();
 
-const pin = ref(route.query.pin || "");
+const PIN_LENGTH = 6;
+
+const pin = ref(String(route.query.pin || "").slice(0, PIN_LENGTH));
+const pinDigits = computed({
+	get: () => [...pin.value],
+	set: (value) => (pin.value = value.join("")),
+});
 const nickname = ref("");
 const avatar = ref(randomAvatar());
 const suggestions = ref(suggestNicknames());
 const joining = ref(false);
 const error = ref("");
 const scroller = ref(null);
+const nicknameInput = ref(null);
+const ready = computed(() => pin.value.length === PIN_LENGTH && nickname.value.trim());
 
 const centerSelected = (behavior) =>
 	scroller.value
@@ -192,7 +233,10 @@ function queuePick() {
 }
 
 // The opening pick is random, so it lands anywhere in the roster.
-onMounted(() => centerSelected("instant"));
+onMounted(() => {
+	centerSelected("instant");
+	if (pin.value.length === PIN_LENGTH) nicknameInput.value?.focus();
+});
 
 async function join() {
 	error.value = "";
