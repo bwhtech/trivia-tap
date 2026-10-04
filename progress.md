@@ -1,5 +1,19 @@
 # Progress
 
+## README media refresh (2026-10-04)
+
+### Done
+
+- Hero image is now `docs/images/host-lobby.gif`: the real lobby filling with players, then a click that enlarges the QR. Captured as lossless 2x PNG frames over CDP screencast, cut and given a drawn cursor in Remotion, converted to a 1760px, 25fps GIF (6.3 MB).
+- Every screenshot retaken from one real game on the current UI (dark by default, light theme shown on the phone). Added the quiz library, the explanation screen and the player's final screen.
+- Removed the old screenshots and the stray `frontend/join-dark.png`.
+
+### Notes
+
+- The Remotion project and capture scripts live in a separate project outside this repo, so the app repo carries only the output.
+- Playwright's `recordVideo` is low-bitrate VP8 and headless screencast ignores `deviceScaleFactor`; launch Chromium with `--force-device-scale-factor=2` for 2x frames.
+- Park the headless mouse away from the chip row while recording: a hovered chip shows its kick button.
+
 ## Phase 25: Continue with Google (2026-10-04)
 
 Spec: `specs/phase-25-google-login.md`.
