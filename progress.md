@@ -1,5 +1,19 @@
 # Progress
 
+## Phase 20: Animated join QR (2026-10-04)
+
+Spec: `specs/phase-20-animated-qr.md`.
+
+### Done
+
+- `AnimatedQr.vue`: a 2D canvas where every dark QR module is a dot. The dots pop in as the mascot outline (dark pixels of the logo), hold with a small bob, then arc into their module and settle to ink. The logo badge lands last.
+- Lobby code and fullscreen code both use it. `renderQr` and the data URL are gone from `Host.vue`.
+- Fullscreen code: `rounded-3xl` is not in the frappe-ui radius scale and rendered square, now `rounded-2xl`. The dialog no longer draws a focus outline around itself.
+
+### Exit criteria verified
+
+Headless browser on a live lobby: mascot frame, flight, settled frame. Both the lobby and the fullscreen settled frames decode with OpenCV to the join URL.
+
 ## Phase 19: Email codes for sign up, reset and log in (2026-10-02)
 
 Spec: `specs/phase-19-email-code-auth.md`.

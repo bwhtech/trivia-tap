@@ -88,10 +88,9 @@
 							or point a phone camera at the code
 						</p>
 					</div>
-					<button v-if="qrDataUrl" class="group" @click="qrFullscreen = true">
-						<img
-							:src="qrDataUrl"
-							alt="Join QR code"
+					<button class="group" @click="qrFullscreen = true">
+						<AnimatedQr
+							:url="joinUrl"
 							class="size-40 rounded-2xl bg-card p-2 ring-1 ring-haze transition group-hover:scale-105 sm:size-48"
 						/>
 						<span
@@ -174,14 +173,14 @@
 
 			<dialog
 				ref="qrDialog"
-				class="qz-dialog max-h-none overflow-hidden border-0 bg-transparent p-0"
+				class="qz-dialog max-h-none overflow-hidden border-0 bg-transparent p-0 outline-none"
 				@cancel.prevent="qrFullscreen = false"
 				@click="qrFullscreen = false"
 			>
-				<img
-					:src="qrDataUrl"
-					alt="Join QR code"
-					class="size-[min(78vh,88vw)] rounded-3xl bg-card p-4"
+				<AnimatedQr
+					v-if="qrFullscreen"
+					:url="joinUrl"
+					class="size-[min(78vh,88vw)] rounded-2xl bg-card p-4"
 				/>
 				<p class="mt-4 text-center font-mono text-2xl tracking-[0.08em] text-paper">
 					{{ session.game_pin }}
@@ -500,7 +499,6 @@
 
 <script setup>
 import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
-import QRCode from "qrcode";
 import { call, readError } from "@/api";
 import { confirm } from "@/confirm";
 import { SHAPES, useCountdown, useSessionRoom } from "@/game";
@@ -510,7 +508,7 @@ import ThemeButton from "@/components/ThemeButton.vue";
 import DrainRing from "@/components/DrainRing.vue";
 import HostBar from "@/components/HostBar.vue";
 import { initSound, muted, playCue, toggleMute } from "@/sound";
-import { LOGO_URL } from "@/theme";
+import AnimatedQr from "@/components/AnimatedQr.vue";
 
 const PODIUM_FILL = { 1: "bg-gold", 2: "bg-lagoon", 3: "bg-orchid" };
 // remembered so a reload on the podium restores it: get_host_state only auto-finds live sessions
@@ -548,7 +546,6 @@ const standings = ref([]);
 const shownScores = ref({});
 const settled = ref(false);
 const leaderboard = ref([]);
-const qrDataUrl = ref("");
 const qrFullscreen = ref(false);
 const qrDialog = ref(null);
 const copied = ref(false);
@@ -704,32 +701,6 @@ function tallyScores(entries) {
 	requestAnimationFrame(step);
 }
 
-// Level H redundancy is what buys the room to punch the logo over the middle.
-async function renderQr(url) {
-	const canvas = document.createElement("canvas");
-	await QRCode.toCanvas(canvas, url, {
-		margin: 1,
-		width: 800,
-		errorCorrectionLevel: "H",
-		color: { dark: "#0A100E", light: "#F2FBF6" },
-	});
-	const logo = new Image();
-	logo.src = LOGO_URL;
-	try {
-		await logo.decode();
-	} catch {
-		return canvas.toDataURL(); // a missing logo is not worth losing the code over
-	}
-	const badge = Math.round(canvas.width * 0.2);
-	const at = Math.round((canvas.width - badge) / 2);
-	const pad = Math.round(badge * 0.12);
-	const context = canvas.getContext("2d");
-	context.fillStyle = "#F2FBF6";
-	context.fillRect(at - pad, at - pad, badge + pad * 2, badge + pad * 2);
-	context.drawImage(logo, at, at, badge, badge);
-	return canvas.toDataURL();
-}
-
 async function copyJoinUrl() {
 	try {
 		await navigator.clipboard.writeText(joinUrl.value);
@@ -750,7 +721,6 @@ async function applyState(state) {
 	lobbyLocked.value = Boolean(state.lobby_locked);
 	autoAdvance.value = Boolean(state.auto_advance);
 	showHostControls.value = Boolean(state.show_host_controls);
-	qrDataUrl.value = await renderQr(joinUrl.value);
 
 	if (state.status === "Lobby") {
 		starting.value = false;
