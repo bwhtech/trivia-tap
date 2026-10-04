@@ -86,7 +86,7 @@
 				<h1 class="font-display text-3xl font-extrabold text-paper">
 					The host removed you
 				</h1>
-				<p class="text-paper/50">You can join again with the PIN.</p>
+				<p class="text-paper/50">No hard feelings. The same PIN gets you back in.</p>
 				<button
 					class="rounded-2xl bg-brand px-7 py-3 font-display text-lg font-extrabold text-sunk"
 					@click="router.replace('/join')"
@@ -101,7 +101,7 @@
 				</p>
 				<h1 class="font-display text-5xl font-extrabold text-paper">You're in</h1>
 				<p class="max-w-xs text-paper/50">
-					Find your name on the big screen. The host starts when everyone's here.
+					Spot your name on the big screen. The game starts when the host says go.
 				</p>
 				<p class="font-mono text-sm tabular-nums text-paper/40">
 					{{ participants.length }} in the lobby
@@ -121,7 +121,7 @@
 					:size="132"
 					color="rgb(var(--accent))"
 				/>
-				<p class="text-paper/50">Read it. Answers land in a second.</p>
+				<p class="text-paper/50">Read fast. The answers drop in a second.</p>
 			</template>
 
 			<template v-else-if="phase === 'locked'">
@@ -134,7 +134,7 @@
 					<path :d="shapeFor(selected).path" />
 				</svg>
 				<h1 class="font-display text-4xl font-extrabold text-paper">Locked in</h1>
-				<p class="text-paper/50">Look up at the big screen.</p>
+				<p class="text-paper/50">Eyes on the big screen.</p>
 			</template>
 
 			<template v-else-if="phase === 'result'">

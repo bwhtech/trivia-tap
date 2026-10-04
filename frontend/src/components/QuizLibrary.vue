@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	<template v-else-if="loaded">
-		<p class="text-paper/50">No quizzes yet. Write your first one.</p>
+		<p class="text-paper/50">No quizzes yet. Every game night starts with one question.</p>
 		<RouterLink class="ctl self-start" to="/host/quizzes/new">New quiz</RouterLink>
 	</template>
 </template>

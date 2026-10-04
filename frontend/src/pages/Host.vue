@@ -123,7 +123,7 @@
 						</div>
 					</div>
 					<p v-if="!participants.length" class="text-paper/35">
-						Waiting for the first player…
+						Who's brave enough to join first?
 					</p>
 				</div>
 

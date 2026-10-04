@@ -54,7 +54,7 @@
 				@submit.prevent="saveName"
 			>
 				<h2 class="font-display text-xl font-bold text-paper">Your name</h2>
-				<p class="-mt-2 text-sm text-paper/50">Shown in your account menu.</p>
+				<p class="-mt-2 text-sm text-paper/50">What we call you in the account menu.</p>
 				<div class="grid gap-4 sm:grid-cols-2">
 					<label class="flex flex-col gap-2">
 						<span
@@ -106,7 +106,7 @@
 							{{
 								editingPassword
 									? "Pick something only you know."
-									: "Log in with your email and this password."
+									: "Your email and this password get you back in."
 							}}
 						</p>
 					</div>

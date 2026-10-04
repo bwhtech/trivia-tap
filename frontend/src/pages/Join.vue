@@ -19,7 +19,7 @@
 				TriviaTap
 			</h1>
 			<p class="mt-3 text-paper/50">
-				Type the PIN from the big screen, pick a nickname and a face, and you're in.
+				The PIN is on the big screen. The name and face are up to you.
 			</p>
 
 			<form class="mt-9 flex flex-col gap-7" @submit.prevent="join">
