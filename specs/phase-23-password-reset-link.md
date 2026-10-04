@@ -30,7 +30,8 @@ The mail uses the TriviaTap auth wrapper and names how long the link works.
 Guest, POST, rate limited per IP. Hands the key to Frappe's `update_password`,
 which owns the password policy, reuse check, session log out and login. Frappe
 answers a used, unknown or expired key with a 410 and a message instead of an
-error, so this turns that into a `ValidationError` with the same message.
+error, so this turns that into a `ValidationError` that tells the host to ask for
+a new link.
 
 ## Reset page
 

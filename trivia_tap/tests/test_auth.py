@@ -4,7 +4,15 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils.password import check_password
 
-from trivia_tap.auth import change_password, login_with_code, reset_password, send_code, sign_up
+from trivia_tap.auth import (
+	change_password,
+	login_with_code,
+	reset_password,
+	reset_password_with_link,
+	send_code,
+	send_reset_link,
+	sign_up,
+)
 from trivia_tap.email_code import MAX_TRIES
 
 EMAIL = "new.host@example.com"
@@ -177,3 +185,54 @@ class TestChangePassword(IntegrationTestCase):
 		# an AuthenticationError would make frappe clear the session cookies
 		with self.assertRaisesRegex(frappe.ValidationError, "Current password is wrong"):
 			change_password("not-my-password", "Aspen-Rocket-Mint-64")
+
+
+class TestResetLink(IntegrationTestCase):
+	def setUp(self):
+		frappe.delete_doc_if_exists("User", EMAIL, force=True)
+		frappe.get_doc(
+			{"doctype": "User", "email": EMAIL, "first_name": "Host", "new_password": PASSWORD}
+		).insert(ignore_permissions=True)
+		frappe.set_user(EMAIL)
+		self.login_manager = patch.object(frappe.local, "login_manager", create=True).start()
+		self.mail = patch("trivia_tap.auth.send_mail").start()
+
+	def tearDown(self):
+		patch.stopall()
+		frappe.set_user("Administrator")
+		frappe.delete_doc_if_exists("User", EMAIL, force=True)
+		super().tearDown()
+
+	def mailed_key(self):
+		send_reset_link()
+		link = self.mail.call_args.args[3]["link"]
+		self.assertIn("/trivia-tap/reset-password?key=", link)
+		return link.split("key=")[1]
+
+	def test_mails_the_callers_own_inbox(self):
+		self.mailed_key()
+
+		self.assertEqual(self.mail.call_args.args[0], EMAIL)
+
+	def test_link_sets_the_new_password_and_logs_in(self):
+		key = self.mailed_key()
+		frappe.set_user("Guest")
+
+		reset_password_with_link(key, NEW_PASSWORD)
+
+		self.assertEqual(check_password(EMAIL, NEW_PASSWORD), EMAIL)
+		self.login_manager.login_as.assert_called_once_with(EMAIL)
+
+	def test_link_works_once(self):
+		key = self.mailed_key()
+		reset_password_with_link(key, NEW_PASSWORD)
+
+		with self.assertRaisesRegex(frappe.ValidationError, "already used or has expired"):
+			reset_password_with_link(key, "Cedar-Comet-Plum-91")
+
+	def test_refuses_administrator(self):
+		frappe.set_user("Administrator")
+
+		with self.assertRaises(frappe.ValidationError):
+			send_reset_link()
+		self.mail.assert_not_called()

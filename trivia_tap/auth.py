@@ -100,6 +100,31 @@ def change_password(old_password: str, new_password: str) -> None:
 	update_password(new_password, old_password=old_password)
 
 
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=5, seconds=10 * 60)
+def send_reset_link() -> None:
+	user = frappe.session.user
+	if user == "Administrator":
+		frappe.throw(_("Administrator cannot reset the password by email."))
+	minutes = cint(frappe.get_system_settings("reset_password_link_expiry_duration")) // 60
+	send_mail(
+		frappe.db.get_value("User", user, "email"),
+		_("Reset your TriviaTap password"),
+		"trivia_tap_reset_link",
+		{"link": get_url(f"/trivia-tap/reset-password?key={reset_key(user)}"), "minutes": minutes},
+	)
+
+
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=20, seconds=10 * 60)
+def reset_password_with_link(key: str, new_password: str) -> None:
+	update_password(new_password, key=key)
+	# frappe answers a used or expired key with a 410 and a message, not an error
+	if frappe.local.response.pop("http_status_code", None) == 410:
+		frappe.throw(_("This link was already used or has expired. Ask for a new one from your profile."))
+
+
 def deliver_code(email: str, purpose: str) -> None:
 	if purpose == "sign_up" and frappe.db.exists("User", {"email": email}):
 		send_mail(

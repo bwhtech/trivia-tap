@@ -1,5 +1,19 @@
 # Progress
 
+## Phase 23: Reset password with an email link (2026-10-04)
+
+Spec: `specs/phase-23-password-reset-link.md`.
+
+### Done
+
+- Profile page: "Forgot?" next to Current password calls `send_reset_link`, which mails the host's own inbox a `/trivia-tap/reset-password?key=...` link. The key and its expiry are Frappe's (`User._reset_password`, `reset_password_link_expiry_duration`). Administrator is refused.
+- `ResetPassword.vue`: new password and confirm, styled like the login page, open to guests. `reset_password_with_link` hands the key to Frappe's `update_password` and turns its 410 for a used or expired key into a `ValidationError`.
+- Profile page polish on the same base: bigger avatar with an edit badge, stat tiles, password form collapsed behind "Change".
+
+### Exit criteria verified
+
+Headless browser as a throwaway Quiz Host: "Forgot?" mails the link to Mailpit, the link opens with cookies cleared, the new password logs in and lands on `/host`, the same link a second time shows the expired message, and a link without a key says it is broken. 96 app tests pass.
+
 ## Security: whitelisted method audit (2026-10-04)
 
 Spec: `specs/security-whitelisted-methods.md`.

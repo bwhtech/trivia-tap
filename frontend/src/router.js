@@ -8,6 +8,11 @@ const routes = [
 	{ path: "/join", name: "Join", component: () => import("@/pages/Join.vue") },
 	{ path: "/login", name: "Login", component: () => import("@/pages/Login.vue") },
 	{ path: "/play", name: "Play", component: () => import("@/pages/Play.vue") },
+	{
+		path: "/reset-password",
+		name: "ResetPassword",
+		component: () => import("@/pages/ResetPassword.vue"),
+	},
 	{ path: "/host", name: "Host", component: () => import("@/pages/Host.vue") },
 	{
 		path: "/host/profile",
