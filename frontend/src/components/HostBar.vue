@@ -10,8 +10,10 @@
 			<img alt="" class="size-7 rounded-md" :src="LOGO_URL" />
 			<span class="hidden sm:inline">TriviaTap</span>
 		</RouterLink>
+		<span class="flex-1" />
 		<RouterLink
-			class="ctl ctl-go ml-auto shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
+			v-if="showNewQuiz"
+			class="ctl ctl-go shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
 			to="/host/quizzes/new"
 			aria-label="New quiz"
 		>
@@ -72,6 +74,11 @@
 import { firstName, logout } from "@/host";
 import HostAvatar from "@/components/HostAvatar.vue";
 import { LOGO_URL, theme } from "@/theme";
+
+defineProps({
+	// off where the page has its own primary action
+	showNewQuiz: { type: Boolean, default: true },
+});
 
 const THEMES = ["auto", "light", "dark"];
 

@@ -333,7 +333,7 @@
 		<template v-else-if="phase === 'explanation'">
 			<div class="flex flex-1 flex-col p-4 sm:p-8">
 				<div
-					class="m-auto flex w-full max-w-4xl flex-col items-center gap-4 text-center sm:gap-6"
+					class="m-auto flex w-full max-w-5xl flex-col items-center gap-4 text-center sm:gap-8"
 				>
 					<p class="font-mono text-xs uppercase tracking-[0.28em] text-paper/40">
 						Question {{ (question?.q_index ?? 0) + 1 }} of {{ question?.total }}
@@ -346,7 +346,7 @@
 					/>
 					<p
 						v-if="explanation?.explanation"
-						class="max-w-3xl font-display text-xl font-bold leading-snug text-paper sm:text-3xl"
+						class="max-w-5xl text-balance font-display text-2xl font-bold leading-snug text-paper sm:text-4xl lg:text-5xl"
 					>
 						{{ explanation.explanation }}
 					</p>

@@ -1,401 +1,214 @@
 <template>
-	<div class="flex h-full flex-col overflow-y-auto bg-night">
-		<HostBar />
-		<div class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-5 pb-20 sm:p-8 sm:pb-20">
-			<div class="flex flex-col gap-2">
-				<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
-					{{ isNew ? "New quiz" : "Editing" }}
-				</p>
-				<!-- title and actions on one line: bottom-aligned pills read as dropped
-				     against a field this tall -->
-				<div class="flex items-center gap-4">
-					<input
-						v-model="title"
-						class="field min-w-0 flex-1 font-display text-2xl font-extrabold sm:text-3xl"
-						placeholder="Quiz title"
-					/>
-					<div class="flex shrink-0 items-center gap-2">
-						<span v-if="saved" class="font-mono text-xs text-ok">Saved</span>
-						<button
-							class="ctl"
-							:disabled="!questions.length"
-							@click="previewing = true"
-						>
-							Preview
-						</button>
-						<button class="ctl ctl-go" :disabled="saving" @click="save">
-							{{ saving ? "Saving…" : "Save" }}
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<textarea
-				v-model="description"
-				rows="2"
-				class="field"
-				placeholder="Description (optional)"
+	<div class="flex h-full flex-col bg-night">
+		<HostBar :show-new-quiz="false" />
+		<header class="flex items-center gap-2 border-b border-haze px-3 py-2.5 sm:gap-3 sm:px-5">
+			<input
+				ref="titleInput"
+				v-model="title"
+				class="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 font-display text-xl font-extrabold text-paper transition placeholder:text-paper/30 hover:border-haze focus:border-haze focus:outline-none sm:text-2xl"
+				placeholder="Untitled quiz"
+				aria-label="Quiz title"
 			/>
-
-			<div class="flex flex-col gap-4">
-				<label class="flex items-center gap-2 self-start font-mono text-xs text-paper/50">
-					<span class="w-52 whitespace-nowrap">Seconds per question</span>
-					<input
-						v-model.number="defaultTimeLimit"
-						type="number"
-						:min="MIN_SECONDS"
-						:max="MAX_SECONDS"
-						class="field !w-20"
-					/>
-				</label>
-
-				<div class="flex flex-wrap items-center gap-3">
-					<button
-						class="ctl"
-						:data-on="showExplanation"
-						@click="showExplanation = !showExplanation"
-					>
-						Explanations {{ showExplanation ? "on" : "off" }}
-					</button>
-					<button v-if="showExplanation" class="ctl" @click="togglePosition">
-						{{
-							explanationPosition === "After Stats"
-								? "After results"
-								: "Before results"
-						}}
-					</button>
-					<button
-						class="ctl"
-						:data-on="showHostControls"
-						@click="showHostControls = !showHostControls"
-					>
-						Host controls {{ showHostControls ? "on" : "off" }}
-					</button>
-				</div>
-
-				<label
-					v-if="showExplanation"
-					class="flex items-center gap-2 self-start font-mono text-xs text-paper/50"
-				>
-					<span class="w-52 whitespace-nowrap">Seconds per explanation</span>
-					<input
-						v-model.number="explanationTimeLimit"
-						type="number"
-						:min="MIN_SECONDS"
-						:max="MAX_SECONDS"
-						class="field !w-20"
-					/>
-				</label>
-			</div>
-
-			<p v-if="error" class="text-alert">{{ error }}</p>
-
-			<div
-				v-for="(question, index) in questions"
-				:key="index"
-				class="flex flex-col gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
+			<span
+				class="hidden shrink-0 font-mono text-xs sm:inline"
+				:class="dirty ? 'text-paper/40' : 'text-ok'"
 			>
-				<div class="flex flex-wrap items-center gap-3">
-					<span
-						class="w-full font-mono text-xs uppercase tracking-[0.2em] text-paper/40 sm:w-auto"
-					>
-						Question {{ index + 1 }}
-					</span>
-					<span class="flex-1" />
-					<button class="ctl" :disabled="index === 0" @click="move(index, -1)">↑</button>
-					<button
-						class="ctl"
-						:disabled="index === questions.length - 1"
-						@click="move(index, 1)"
-					>
-						↓
-					</button>
-					<button class="ctl" @click="questions.splice(index, 1)">Remove</button>
-				</div>
+				{{ dirty ? "Unsaved changes" : "Saved" }}
+			</span>
+			<button
+				class="ctl shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
+				aria-label="Quiz settings"
+				@click="showSettings = true"
+			>
+				<LucideSettings class="size-4" />
+				<span class="hidden sm:inline">Settings</span>
+			</button>
+			<button
+				class="ctl shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
+				aria-label="Preview"
+				:disabled="!questions.length"
+				@click="previewing = true"
+			>
+				<LucideEye class="size-4" />
+				<span class="hidden sm:inline">Preview</span>
+			</button>
+			<button class="ctl ctl-go shrink-0" :disabled="saving" @click="save">
+				{{ saving ? "Saving…" : "Save" }}
+			</button>
+		</header>
+		<p
+			v-if="error"
+			class="border-b border-haze bg-dusk px-5 py-2 text-sm text-alert"
+			role="alert"
+		>
+			{{ error }}
+		</p>
 
-				<textarea
-					v-model="question.question_text"
-					rows="3"
-					class="field font-display text-xl font-bold"
-					placeholder="What do you want to ask?"
+		<div class="flex min-h-0 flex-1 flex-col md:flex-row">
+			<QuestionRail
+				:questions="questions"
+				:selected="selected"
+				@select="(question) => (selected = question)"
+				@move="move"
+				@duplicate="duplicate"
+				@remove="remove"
+				@add="add"
+			/>
+			<main
+				v-if="selected"
+				class="min-h-0 flex-1 overflow-y-auto lg:flex lg:overflow-hidden"
+			>
+				<div class="p-4 sm:p-8 lg:flex-1 lg:overflow-y-auto">
+					<QuestionSlide ref="slide" :question="selected" />
+				</div>
+				<QuestionSettings
+					class="border-t border-haze p-5 lg:w-72 lg:shrink-0 lg:overflow-y-auto lg:border-l lg:border-t-0"
+					:question="selected"
+					:default-seconds="settings.default_time_limit || DEFAULT_TIME_LIMIT"
+					:show-explanation="settings.show_explanation"
+					@duplicate="duplicate(selected)"
+					@remove="remove(selected)"
 				/>
-
-				<div class="flex flex-wrap items-center gap-4">
-					<img
-						v-if="question.image"
-						:src="question.image"
-						alt=""
-						class="h-24 rounded-xl object-contain"
-					/>
-					<FileUploader
-						file-types="image/*"
-						:upload-args="{ private: 0, optimize: true }"
-						@success="(file) => (question.image = file.file_url)"
-					>
-						<template #default="{ openFileSelector, uploading, progress }">
-							<button class="ctl" @click="openFileSelector">
-								{{
-									uploading
-										? `Uploading ${progress}%`
-										: question.image
-										? "Replace image"
-										: "Add image"
-								}}
-							</button>
-						</template>
-					</FileUploader>
-					<button v-if="question.image" class="ctl" @click="question.image = null">
-						Remove image
+			</main>
+			<main v-else class="grid flex-1 place-items-center p-8 text-center">
+				<div class="flex flex-col items-center gap-4">
+					<p class="text-paper/50">No questions yet.</p>
+					<button class="ctl ctl-go gap-1.5" @click="add">
+						<LucidePlus class="size-4" />
+						Add question
 					</button>
 				</div>
-
-				<div class="grid gap-2 sm:grid-cols-2">
-					<label
-						v-for="option in [1, 2, 3, 4]"
-						:key="option"
-						class="flex items-center gap-3 rounded-xl px-3 py-2"
-						:class="SHAPES[option - 1].fill"
-					>
-						<input
-							v-model="question.correct_option"
-							type="radio"
-							:value="String(option)"
-							:name="`correct-${index}`"
-							:aria-label="`Option ${option} is correct`"
-							class="h-5 w-5 shrink-0 appearance-none rounded-full border-2 border-sunk/40 bg-transparent checked:border-[6px] checked:border-sunk"
-						/>
-						<input
-							v-model="question[`option_${option}`]"
-							class="w-full border-0 bg-transparent font-display text-lg font-bold text-sunk placeholder:text-sunk/40 focus:outline-none"
-							:placeholder="`Answer ${option}`"
-						/>
-					</label>
-				</div>
-
-				<div v-if="showExplanation" class="flex flex-col gap-3">
-					<textarea
-						v-model="question.explanation"
-						rows="2"
-						class="field"
-						placeholder="Why is that the answer? Shown before the scoreboard."
-					/>
-					<div class="flex flex-wrap items-center gap-4">
-						<img
-							v-if="question.explanation_image"
-							:src="question.explanation_image"
-							alt=""
-							class="h-24 rounded-xl object-contain"
-						/>
-						<FileUploader
-							file-types="image/*"
-							:upload-args="{ private: 0, optimize: true }"
-							@success="(file) => (question.explanation_image = file.file_url)"
-						>
-							<template #default="{ openFileSelector, uploading, progress }">
-								<button class="ctl" @click="openFileSelector">
-									{{
-										uploading
-											? `Uploading ${progress}%`
-											: question.explanation_image
-											? "Replace explanation image"
-											: "Add explanation image"
-									}}
-								</button>
-							</template>
-						</FileUploader>
-						<button
-							v-if="question.explanation_image"
-							class="ctl"
-							@click="question.explanation_image = null"
-						>
-							Remove image
-						</button>
-					</div>
-				</div>
-
-				<div class="flex flex-wrap gap-4">
-					<label
-						class="flex items-center gap-2 whitespace-nowrap font-mono text-xs text-paper/50"
-					>
-						Time limit
-						<input
-							v-model.number="question.time_limit"
-							type="number"
-							:min="MIN_SECONDS"
-							:max="MAX_SECONDS"
-							class="field w-20"
-							:placeholder="String(defaultTimeLimit)"
-						/>
-					</label>
-					<label
-						class="flex items-center gap-2 whitespace-nowrap font-mono text-xs text-paper/50"
-					>
-						Points
-						<select v-model="question.points_multiplier" class="field w-32">
-							<option value="0">No points</option>
-							<option value="1">Normal</option>
-							<option value="2">Double</option>
-						</select>
-					</label>
-				</div>
-			</div>
-
-			<div class="flex items-center gap-3">
-				<button class="ctl" @click="questions.push(blankQuestion())">Add question</button>
-			</div>
+			</main>
 		</div>
 
+		<QuizSettingsDialog
+			:open="showSettings"
+			:settings="settings"
+			@close="showSettings = false"
+		/>
 		<QuizPreview
 			:open="previewing"
 			:questions="questions"
-			:default-seconds="defaultTimeLimit"
-			:show-explanation="showExplanation"
-			:explanation-position="explanationPosition"
-			:explanation-seconds="explanationTimeLimit"
+			:default-seconds="settings.default_time_limit"
+			:show-explanation="settings.show_explanation"
+			:explanation-position="settings.explanation_position"
+			:explanation-seconds="settings.explanation_time_limit"
 			@close="previewing = false"
 		/>
 	</div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { FileUploader } from "frappe-ui";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import { call, readError } from "@/api";
-import { SHAPES } from "@/game";
+import { confirm } from "@/confirm";
+import {
+	QUESTION_FIELDS,
+	blankQuestion,
+	clampSeconds,
+	copyQuestion,
+	isBlank,
+	questionProblem,
+	withKey,
+} from "@/quiz";
 import HostBar from "@/components/HostBar.vue";
+import QuestionRail from "@/components/QuestionRail.vue";
+import QuestionSettings from "@/components/QuestionSettings.vue";
+import QuestionSlide from "@/components/QuestionSlide.vue";
 import QuizPreview from "@/components/QuizPreview.vue";
+import QuizSettingsDialog from "@/components/QuizSettingsDialog.vue";
 
-const QUESTION_FIELDS = [
-	"question_text",
-	"image",
-	"option_1",
-	"option_2",
-	"option_3",
-	"option_4",
-	"correct_option",
-	"explanation",
-	"explanation_image",
-	"time_limit",
-	"points_multiplier",
-];
 const DEFAULT_TIME_LIMIT = 20;
 const DEFAULT_EXPLANATION_SECONDS = 10;
-const DEFAULT_EXPLANATION_POSITION = "Before Stats";
-const MIN_SECONDS = 5;
-const MAX_SECONDS = 120;
 
 const route = useRoute();
 const router = useRouter();
 
-const isNew = computed(() => route.params.name === "new");
-const quizName = ref(isNew.value ? null : route.params.name);
 const loadedDoc = ref(null);
 const title = ref("");
-const description = ref("");
-const defaultTimeLimit = ref(DEFAULT_TIME_LIMIT);
-const showExplanation = ref(false);
-const showHostControls = ref(false);
-const explanationTimeLimit = ref(DEFAULT_EXPLANATION_SECONDS);
-const explanationPosition = ref(DEFAULT_EXPLANATION_POSITION);
+const settings = reactive({
+	description: "",
+	default_time_limit: DEFAULT_TIME_LIMIT,
+	show_explanation: false,
+	show_host_controls: false,
+	explanation_time_limit: DEFAULT_EXPLANATION_SECONDS,
+	explanation_position: "Before Stats",
+});
 const questions = ref([]);
+const selected = ref(null);
+const savedSnapshot = ref("");
+const showSettings = ref(false);
 const previewing = ref(false);
 const saving = ref(false);
-const saved = ref(false);
 const error = ref("");
+const titleInput = ref(null);
+const slide = ref(null);
 
-watch(
-	[title, description, defaultTimeLimit, showExplanation, showHostControls, questions],
-	() => (saved.value = false),
-	{
-		deep: true,
-	}
-);
+const dirty = computed(() => JSON.stringify(editedFields()) !== savedSnapshot.value);
 
 onMounted(async () => {
-	if (isNew.value) {
+	window.addEventListener("keydown", saveOnShortcut);
+	window.addEventListener("beforeunload", warnBeforeUnload);
+	if (route.params.name === "new") {
 		questions.value = [blankQuestion()];
-		return;
+	} else {
+		await load(route.params.name);
 	}
+	selected.value = questions.value[0] || null;
+	markSaved();
+});
+
+onBeforeUnmount(() => {
+	window.removeEventListener("keydown", saveOnShortcut);
+	window.removeEventListener("beforeunload", warnBeforeUnload);
+});
+
+onBeforeRouteLeave(async () => {
+	if (!dirty.value) return true;
+	return await confirm("Leave without saving your changes?", {
+		action: "Leave",
+		danger: true,
+	});
+});
+
+async function load(name) {
 	try {
-		const quiz = await call("frappe.client.get", {
-			doctype: "TT Quiz",
-			name: quizName.value,
-		});
-		title.value = quiz.title;
-		description.value = quiz.description || "";
-		defaultTimeLimit.value = quiz.default_time_limit || DEFAULT_TIME_LIMIT;
-		showExplanation.value = Boolean(quiz.show_explanation);
-		showHostControls.value = Boolean(quiz.show_host_controls);
-		explanationTimeLimit.value = quiz.explanation_time_limit || DEFAULT_EXPLANATION_SECONDS;
-		explanationPosition.value = quiz.explanation_position || DEFAULT_EXPLANATION_POSITION;
+		const quiz = await call("frappe.client.get", { doctype: "TT Quiz", name });
 		loadedDoc.value = quiz;
+		title.value = quiz.title;
+		Object.assign(settings, {
+			description: quiz.description || "",
+			default_time_limit: quiz.default_time_limit || DEFAULT_TIME_LIMIT,
+			show_explanation: Boolean(quiz.show_explanation),
+			show_host_controls: Boolean(quiz.show_host_controls),
+			explanation_time_limit: quiz.explanation_time_limit || DEFAULT_EXPLANATION_SECONDS,
+			explanation_position: quiz.explanation_position || settings.explanation_position,
+		});
 		// an unset Int comes back as 0; the field should read as empty, not as zero seconds
-		questions.value = quiz.questions.map((question) => ({
-			...question,
-			time_limit: question.time_limit || null,
-		}));
-		saved.value = true;
+		questions.value = quiz.questions.map((question) =>
+			withKey({
+				...question,
+				time_limit: question.time_limit || null,
+				points_multiplier: question.points_multiplier || "1",
+			})
+		);
 	} catch (e) {
 		error.value = readError(e);
 	}
-});
-
-function blankQuestion() {
-	return {
-		question_text: "",
-		image: null,
-		option_1: "",
-		option_2: "",
-		option_3: "",
-		option_4: "",
-		correct_option: "1",
-		explanation: "",
-		explanation_image: null,
-		time_limit: null,
-		points_multiplier: "1",
-	};
-}
-
-function togglePosition() {
-	explanationPosition.value =
-		explanationPosition.value === "After Stats" ? "Before Stats" : "After Stats";
-}
-
-function move(index, step) {
-	const [question] = questions.value.splice(index, 1);
-	questions.value.splice(index + step, 0, question);
 }
 
 async function save() {
+	if (saving.value || !checkQuiz()) return;
 	error.value = "";
 	saving.value = true;
 	try {
-		const doc = {
-			...loadedDoc.value,
-			doctype: "TT Quiz",
-			title: title.value,
-			description: description.value,
-			default_time_limit: clampSeconds(defaultTimeLimit.value) || DEFAULT_TIME_LIMIT,
-			show_explanation: Number(showExplanation.value),
-			show_host_controls: Number(showHostControls.value),
-			explanation_time_limit:
-				clampSeconds(explanationTimeLimit.value) || DEFAULT_EXPLANATION_SECONDS,
-			explanation_position: explanationPosition.value,
-			// rebuilt without name or idx: frappe keeps an idx it is given, so a row that
-			// carried its old one would ignore the reorder
-			questions: questions.value.map((question) => ({
-				doctype: "TT Question",
-				...Object.fromEntries(QUESTION_FIELDS.map((field) => [field, question[field]])),
-				time_limit: clampSeconds(question.time_limit),
-			})),
-		};
+		const doc = { ...loadedDoc.value, doctype: "TT Quiz", ...editedFields() };
 		const method = loadedDoc.value ? "frappe.client.save" : "frappe.client.insert";
-		const savedDoc = await call(method, { doc });
-		saved.value = true;
-		loadedDoc.value = savedDoc;
-		if (!quizName.value) router.replace(`/host/quizzes/${savedDoc.name}`);
-		quizName.value = savedDoc.name;
+		const isNew = !loadedDoc.value;
+		loadedDoc.value = await call(method, { doc });
+		markSaved();
+		if (isNew) router.replace(`/host/quizzes/${loadedDoc.value.name}`);
 	} catch (e) {
 		error.value = readError(e);
 	} finally {
@@ -403,9 +216,96 @@ async function save() {
 	}
 }
 
-// The engine plays any window; this is an authoring rule, so the client is the right place.
-function clampSeconds(seconds) {
-	if (!seconds) return null;
-	return Math.min(Math.max(seconds, MIN_SECONDS), MAX_SECONDS);
+function checkQuiz() {
+	if (!title.value.trim()) {
+		error.value = "Give the quiz a title.";
+		titleInput.value.focus();
+		return false;
+	}
+	if (!questions.value.length) {
+		error.value = "A quiz needs at least one question.";
+		return false;
+	}
+	const broken = questions.value.find(questionProblem);
+	if (broken) {
+		selected.value = broken;
+		error.value = `Question ${questions.value.indexOf(broken) + 1} ${questionProblem(
+			broken
+		)}.`;
+		return false;
+	}
+	return true;
+}
+
+function editedFields() {
+	return {
+		title: title.value,
+		description: settings.description,
+		default_time_limit: clampSeconds(settings.default_time_limit) || DEFAULT_TIME_LIMIT,
+		show_explanation: Number(settings.show_explanation),
+		show_host_controls: Number(settings.show_host_controls),
+		explanation_time_limit:
+			clampSeconds(settings.explanation_time_limit) || DEFAULT_EXPLANATION_SECONDS,
+		explanation_position: settings.explanation_position,
+		// rebuilt without name or idx: frappe keeps an idx it is given, so a row that
+		// carried its old one would ignore the reorder
+		questions: questions.value.map((question) => ({
+			doctype: "TT Question",
+			...Object.fromEntries(QUESTION_FIELDS.map((field) => [field, question[field]])),
+			time_limit: clampSeconds(question.time_limit),
+		})),
+	};
+}
+
+function markSaved() {
+	savedSnapshot.value = JSON.stringify(editedFields());
+}
+
+function move(from, to) {
+	const [question] = questions.value.splice(from, 1);
+	questions.value.splice(to, 0, question);
+}
+
+function add() {
+	insertAfterSelected(blankQuestion());
+}
+
+function duplicate(question) {
+	selected.value = question;
+	insertAfterSelected(copyQuestion(question));
+}
+
+async function insertAfterSelected(question) {
+	const index = questions.value.indexOf(selected.value);
+	questions.value.splice(index + 1, 0, question);
+	selected.value = question;
+	await nextTick();
+	slide.value?.focus();
+}
+
+async function remove(question) {
+	const index = questions.value.indexOf(question);
+	if (!isBlank(question)) {
+		const ok = await confirm(`Delete question ${index + 1}?`, {
+			action: "Delete",
+			danger: true,
+		});
+		if (!ok) return;
+	}
+	questions.value.splice(index, 1);
+	if (selected.value === question) {
+		selected.value = questions.value[Math.min(index, questions.value.length - 1)] || null;
+	}
+}
+
+function saveOnShortcut(event) {
+	if (event.key === "s" && (event.metaKey || event.ctrlKey)) {
+		event.preventDefault();
+		save();
+	}
+}
+
+function warnBeforeUnload(event) {
+	if (dirty.value) event.preventDefault();
 }
 </script>

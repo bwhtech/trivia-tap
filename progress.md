@@ -1,5 +1,22 @@
 # Progress
 
+## Phase 22: Slide quiz editor (2026-10-04)
+
+Spec: `specs/phase-22-slide-editor.md`.
+
+### Done
+
+- `QuizEditor.vue` is now three panes: `QuestionRail` (question cards), `QuestionSlide` (the selected question laid out like the projector, tick a tile to mark it correct) and `QuestionSettings` (time limit, points, explanation, duplicate, delete).
+- Rail cards reorder by drag, live as the card passes others, and by Alt+Up / Alt+Down. Incomplete cards get a red dot. Duplicate and delete show on hover or focus.
+- Description, timers, explanations and host controls moved to `QuizSettingsDialog`.
+- Save checks the quiz on the client first (`questionProblem` in `quiz.js` mirrors `TTQuiz.validate`) and selects the broken question. Ctrl+S / Cmd+S saves. Unsaved changes are tracked against a snapshot of the payload and guard both route leave and tab close.
+- `ImageField` replaces the two copies of the upload, replace and remove buttons.
+- `.field` gets a mint border on focus instead of the browser's blue outline.
+
+### Exit criteria verified
+
+Headless browser: new quiz, client validation jumps to the broken question, Ctrl+S saves and swaps `/new` for the quiz name, order persisted in the DB after Alt+Up, duplicate, drag both ways and delete, leave guard, settings dialog, preview, 390px layout and light theme.
+
 ## Phase 21: One quiz list (2026-10-04)
 
 Spec: `specs/phase-21-one-quiz-list.md`.
