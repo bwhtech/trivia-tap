@@ -1,0 +1,11 @@
+<h1 class="email-title">{{ _("Reset your password") }}</h1>
+<div class="email-body">
+	<p>
+		{{ _("Open this link to set a new TriviaTap password.") }}
+		{% if minutes %}{{ _("It works once and expires in {0} minutes.").format(minutes) }}{% else %}{{ _("It works once.") }}{% endif %}
+	</p>
+	<div class="email-action">
+		<a class="email-btn email-btn-primary" href="{{ link }}">{{ _("Set a new password") }}</a>
+	</div>
+	<p class="email-ignore">{{ _("If you didn't ask for this, you can safely ignore this email.") }}</p>
+</div>

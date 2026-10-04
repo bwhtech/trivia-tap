@@ -130,11 +130,21 @@
 					<!-- lets password managers tie the new password to this account -->
 					<input :value="user" autocomplete="username" hidden />
 					<div class="flex flex-col gap-2">
-						<label
-							class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
-							for="current-password"
-							>Current password</label
-						>
+						<span class="flex items-baseline justify-between">
+							<label
+								class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+								for="current-password"
+								>Current password</label
+							>
+							<button
+								type="button"
+								class="text-sm text-paper/45 hover:text-paper disabled:opacity-50"
+								:disabled="sendingLink"
+								@click="sendResetLink"
+							>
+								{{ sendingLink ? "Sending…" : "Forgot?" }}
+							</button>
+						</span>
 						<PasswordInput
 							id="current-password"
 							v-model="oldPassword"
@@ -183,7 +193,11 @@
 							{{ passwordNote }}
 						</p>
 						<button type="button" class="ctl" @click="cancelPassword">Cancel</button>
-						<button class="ctl ctl-go" :disabled="savingPassword">
+						<button
+							class="ctl"
+							:class="{ 'ctl-go': passwordFilled }"
+							:disabled="savingPassword || !passwordFilled"
+						>
 							{{ savingPassword ? "Changing…" : "Change password" }}
 						</button>
 					</div>
@@ -230,11 +244,15 @@ const nameFailed = ref(false);
 const oldPassword = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
+const passwordFilled = computed(
+	() => oldPassword.value && newPassword.value && confirmPassword.value
+);
 const savingPassword = ref(false);
 const passwordChanged = route.query.password === "changed";
 const passwordNote = ref(passwordChanged ? "Password changed." : "");
 const passwordFailed = ref(false);
 const editingPassword = ref(false);
+const sendingLink = ref(false);
 
 onMounted(async () => {
 	if (passwordChanged) router.replace({ query: {} });
@@ -286,6 +304,19 @@ function cancelPassword() {
 	editingPassword.value = false;
 	oldPassword.value = newPassword.value = confirmPassword.value = "";
 	passwordNote.value = "";
+}
+
+async function sendResetLink() {
+	sendingLink.value = true;
+	try {
+		await call("trivia_tap.auth.send_reset_link");
+		cancelPassword();
+		showPasswordNote(`We emailed a reset link to ${user}.`, false);
+	} catch (e) {
+		showPasswordNote(errorText(e), true);
+	} finally {
+		sendingLink.value = false;
+	}
 }
 
 function showNameNote(text, failed) {
