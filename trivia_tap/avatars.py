@@ -1,10 +1,4 @@
-"""Avatar packs.
-
-A pack is a JSON manifest in `avatar_packs/`, listing the roster the picker
-shows and the server validates against. The active pack comes from
-`site_config.trivia_tap_avatar_pack`. Swapping art, editing the roster, or adding
-avatars is a manifest change, never a code change.
-"""
+"""Swapping art or editing the roster is a manifest change in `avatar_packs/`, never a code change."""
 
 import json
 import zlib
@@ -47,7 +41,6 @@ def default_avatar(nickname: str) -> str:
 
 
 def get_boot_pack() -> dict:
-	"""Pack payload for the SPA, injected into the portal page boot context."""
 	pack = get_active_pack()
 	return {
 		"id": pack["id"],

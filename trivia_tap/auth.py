@@ -22,13 +22,11 @@ def send_code(email: str, purpose: str) -> None:
 	if purpose == "sign_up":
 		check_signup_open()
 	EmailCode(purpose, email).throttle()
-	# the mail goes out from a job either way, so the response time does not tell
-	# whether the email has an account
+	# always a job, so response time cannot tell whether the email has an account
 	frappe.enqueue(deliver_code, queue="short", email=email, purpose=purpose, now=frappe.flags.in_test)
 
 
-# Frappe's own sign_up only mails a password link; a host wants to write a quiz
-# right away, so this one takes the password and logs them in.
+# Frappe's own sign_up only mails a password link, and a host wants to write a quiz right away.
 # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=get_signup_limit, seconds=60)
@@ -89,8 +87,7 @@ def login_with_code(email: str, code: str) -> None:
 	frappe.local.login_manager.login_as(user)
 
 
-# frappe's login_via_google callback verifies the email, creates or links the user
-# and logs them in; this only starts the flow and keeps the landing page inside the SPA
+# frappe's login_via_google callback does the rest; this keeps the landing page inside the SPA
 # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @frappe.whitelist(allow_guest=True, methods=["GET"])
 @rate_limit(limit=20, seconds=10 * 60)
@@ -106,8 +103,7 @@ def login_with_google(redirect_to: str = "/host") -> None:
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=10, seconds=10 * 60)
 def change_password(old_password: str, new_password: str) -> None:
-	# frappe clears the session cookies on an AuthenticationError, so a typo in the
-	# current password would log the host out of the page they are on
+	# frappe clears the session cookies on an AuthenticationError, so a typo would log the host out
 	try:
 		frappe.local.login_manager.check_password(frappe.session.user, old_password)
 	except frappe.AuthenticationError:

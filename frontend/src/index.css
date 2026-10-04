@@ -1,9 +1,8 @@
 @import 'frappe-ui/style.css';
 
-/* Logo ink, the default. Channels so Tailwind's opacity modifiers still work. */
+/* RGB channels so Tailwind's opacity modifiers still work. */
 :root {
 	color-scheme: dark;
-	/* The logo's own gradient: every primary action wears it. */
 	--brand: linear-gradient(135deg, #6bf57f, #11ddb9);
 	--night: 13 19 17;
 	--dusk: 23 33 29;
@@ -16,12 +15,7 @@
 	--ok: 23 176 190;
 }
 
-/* Daylight. The accent trio is re-derived rather than inverted: on a light
-   ground each one has to drop far enough to read as small text against `night`.
-   The answer tiles are not in here at all — they keep their brand hues.
-
-   A host in a bright room is not the same thing as a host whose laptop is set
-   to light, so the toggle overrides the OS in both directions. */
+/* Accents are re-derived, not inverted: each must read as small text on a light ground. */
 :root[data-theme='light'] {
 	color-scheme: light;
 	--night: 246 251 248;
@@ -61,8 +55,7 @@ body {
 	outline-offset: 3px;
 }
 
-/* The signature: time drains out of a ring instead of sliding along a bar.
-   --p is percent remaining; the arc shrinks back to 12 o'clock as it runs out. */
+/* --p is percent remaining, so the arc shrinks back to 12 o'clock as it runs out. */
 .drain-ring {
 	background: conic-gradient(
 		from -90deg,
@@ -91,10 +84,8 @@ body {
 	}
 }
 
-/* Host controls: pill toggles that stay quiet so the game owns the screen. */
 .ctl {
-	/* inline-flex with its own line-height: a bold pill picks up a fallback face
-	   whose metrics would otherwise make it taller than the pill beside it */
+	/* own line-height: a bold pill picks up a fallback face that would make it taller */
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -153,7 +144,7 @@ body {
 	filter: brightness(1.1);
 }
 
-/* Dialogs: the default <dialog> lands white and unanimated on a dark app. */
+/* The default <dialog> lands white and unanimated on a dark app. */
 .qz-dialog {
 	margin: auto;
 }
@@ -174,7 +165,7 @@ body {
 	}
 }
 
-/* Authoring inputs: frappe-ui form controls only ship a light theme. */
+/* frappe-ui form controls only ship a light theme. */
 .field {
 	width: 100%;
 	background: rgb(var(--night));
@@ -228,13 +219,12 @@ body {
 	}
 }
 
-/* Standings: rows keep their identity, so the list re-orders as a move, not a repaint. */
+/* Rows keep their identity, so the list re-orders as a move, not a repaint. */
 .rank-move {
 	transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* The avatar strip says "this scrolls" with faces cut off at the gutter, so
-   the bar underneath is noise. */
+/* Faces cut off at the gutter already say "this scrolls". */
 .no-scrollbar {
 	scrollbar-width: none;
 }

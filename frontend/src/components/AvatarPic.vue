@@ -1,5 +1,4 @@
-<!-- Not frappe-ui's Avatar: that one caps at 3xl, and the host screen renders
-     these far larger. -->
+<!-- Not frappe-ui's Avatar: it caps at 3xl and the host screen renders these far larger. -->
 <template>
 	<img
 		v-if="url"

@@ -1,4 +1,3 @@
-<!-- The selected question laid out like the projector screen, edited in place. -->
 <template>
 	<div class="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-6">
 		<textarea

@@ -30,7 +30,7 @@ class TTParticipant(Document):
 		if not self.nickname:
 			frappe.throw(_("Nickname is required"))
 		self.validate_avatar()
-		# ponytail: exists-check has a race window; a duplicate slipping through is cosmetic
+		# racy, but a duplicate slipping through is cosmetic
 		duplicate = frappe.db.exists(
 			"TT Participant",
 			{
@@ -47,6 +47,5 @@ class TTParticipant(Document):
 		if not self.avatar:
 			self.avatar = default_avatar(self.nickname)
 		elif not is_valid_avatar(self.avatar):
-			# Rejected rather than defaulted: a silent fallback hides a stale
-			# client or a manifest edited without re-running build:avatars.
+			# not defaulted: a fallback would hide a stale client or a manifest not rebuilt
 			frappe.throw(_("Unknown avatar {0}").format(self.avatar))

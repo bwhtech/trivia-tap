@@ -62,7 +62,6 @@ def get_lobby(session: str) -> dict:
 
 @frappe.whitelist()
 def get_host_state(session: str | None = None) -> dict:
-	"""Whole host screen in one call, for first paint and for reload mid-game."""
 	session_doc = get_host_session(session) if session else get_live_host_session()
 	if not session_doc or session_doc.status == "Cancelled":
 		return {}
@@ -170,7 +169,7 @@ def end_session(session: str) -> dict:
 def list_quizzes() -> list[dict]:
 	quizzes = frappe.get_list("TT Quiz", fields=["name", "title"], order_by="modified desc")
 	for quiz in quizzes:
-		# ponytail: one count per quiz; group them if a host ever owns hundreds
+		# one count per quiz; group them if a host ever owns hundreds
 		quiz["question_count"] = frappe.db.count("TT Question", {"parent": quiz.name})
 	return quizzes
 
@@ -260,7 +259,6 @@ def submit_answer(pin: str, token: str, question_row: str, selected_option: str)
 		).insert(ignore_permissions=True, ignore_links=True)
 	except frappe.UniqueValidationError:
 		frappe.throw(_("Already answered"))
-	# the live answered count is now broadcast by the ticker (throttled), not per-submit
 	return {"ok": True}
 
 
@@ -336,7 +334,7 @@ def get_result(pin: str, token: str, question_row: str) -> dict:
 @rate_limit(limit=10, seconds=60)
 def leave_session(pin: str, token: str) -> None:
 	session, participant = get_player(pin, token)
-	# ponytail: leave only matters in the lobby; mid-game the row must survive for scores
+	# mid-game the row must survive for scores
 	if session.status == "Lobby":
 		frappe.delete_doc("TT Participant", participant.name, ignore_permissions=True, force=True)
 		publish_lobby_update(session)
@@ -460,7 +458,7 @@ def hash_token(token: str) -> str:
 
 
 def generate_game_pin() -> str:
-	# ponytail: pins stay unique forever (DB unique column); revisit if sessions ever near 1M
+	# pins stay unique forever (DB unique column); revisit if sessions ever near 1M
 	for _attempt in range(20):
 		pin = f"{secrets.randbelow(1_000_000):06d}"
 		if not frappe.db.exists("TT Session", {"game_pin": pin}):

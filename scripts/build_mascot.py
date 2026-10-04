@@ -1,6 +1,4 @@
-# Cuts the logo PNG into layers (background, head, eyes, sparks) and writes an
-# SVG that animates them with CSS, so the mascot blinks and fidgets anywhere an
-# <img> can show it. Re-run after the logo changes:
+# Animated in CSS so the mascot moves anywhere an <img> can show it. Re-run after the logo changes:
 #
 #   uv run --with numpy --with scipy --with pillow python scripts/build_mascot.py
 

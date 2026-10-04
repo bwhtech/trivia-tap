@@ -5,8 +5,7 @@ function pick(list) {
 }
 
 export function suggestNicknames(count = 3) {
-	// Distinct nouns, not just distinct names: three "…Narwhal" options read as
-	// one option with a typo.
+	// distinct nouns: three "…Narwhal" options read as one option with a typo
 	const used = new Set();
 	while (used.size < count && adjectives.length && nouns.length >= count) {
 		used.add(pick(nouns));

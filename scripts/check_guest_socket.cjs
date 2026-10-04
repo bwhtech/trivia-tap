@@ -1,5 +1,4 @@
-// Verifies the Phase 0 spike result: a guest socket can join a tt_session
-// room and receive server-published events. Run from the app root:
+// Checks that a guest socket can join a tt_session room and receive events. Run from the app root:
 //   node scripts/check_guest_socket.cjs
 // then publish from the bench:
 //   bench --site trivia-tap.localhost execute frappe.publish_realtime \

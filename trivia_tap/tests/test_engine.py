@@ -81,8 +81,7 @@ class GameTestCase(IntegrationTestCase):
 		for question in self.questions:
 			frappe.cache.delete_value(engine.answered_key(self.session, question.name))
 		frappe.set_user("Administrator")
-		# engine steps commit mid-test, so the framework rollback alone would leave this
-		# quiz and session behind on the site and pollute the host's quiz picker
+		# engine steps commit mid-test, so the framework rollback alone leaves rows behind
 		frappe.db.rollback()
 		for doctype in ("TT Answer", "TT Participant"):
 			for name in frappe.get_all(doctype, filters={"session": self.session}, pluck="name"):
@@ -153,7 +152,6 @@ class TestSubmitGauntlet(GameTestCase):
 		self.activate()
 		question = self.open_question()
 		submit_answer(self.pin, self.alice["participant_token"], question.name, "2")
-		# simulate the race: redis pre-check lost, DB constraint must still hold
 		frappe.cache.srem(engine.answered_key(self.session, question.name), self.alice["participant"])
 		with self.assertRaises(frappe.ValidationError):
 			submit_answer(self.pin, self.alice["participant_token"], question.name, "3")
@@ -270,7 +268,6 @@ class TestGameLoop(GameTestCase):
 
 		alice = frappe.get_doc("TT Participant", self.alice["participant"])
 		bob = frappe.get_doc("TT Participant", self.bob["participant"])
-		# q1 correct (1x) + q2 correct (2x, streak 2): score > 1500, streak 2
 		self.assertGreater(alice.score, 1500)
 		self.assertEqual(alice.streak, 2)
 		self.assertEqual(alice.rank, 1)
@@ -330,7 +327,6 @@ class TestGameLoop(GameTestCase):
 		self.assertEqual(engine.get_state(self.session)["phase"], "scoreboard")
 		self.assertEqual([e["type"] for e in events], ["question_closed", "scoreboard"])
 		standings = events[1]["standings"]
-		# bob answered his way past alice, so the screen has both places to move between
 		self.assertEqual([s["nickname"] for s in standings], ["bob", "alice"])
 		self.assertEqual([s["rank"] for s in standings], [1, 2])
 		self.assertEqual([s["previous_rank"] for s in standings], [2, 1])
@@ -436,9 +432,7 @@ class TestExplanationScreen(GameTestCase):
 				self.assertEqual(state["phase"], "explanation")
 				self.assertEqual([e["type"] for e in events], ["explanation"])
 				self.assertEqual(events[0]["explanation"], "Canberra it is.")
-				# the screen is the explanation alone: no question text, no answer
 				self.assertNotIn("correct_option", events[0])
-				# scores settle at close, so a player's own result is ready to read here
 				self.assertEqual(
 					frappe.db.get_value(
 						"TT Answer",
@@ -466,13 +460,11 @@ class TestExplanationScreen(GameTestCase):
 				state = engine.get_state(self.session)
 				self.assertEqual(state["phase"], "stats")
 				self.assertEqual([e["type"] for e in events], ["question_closed"])
-				# the host button has to say where it goes, so the stats event flags what follows
 				self.assertTrue(events[0]["explanation_next"])
 				engine.advance_session(self.session_doc, state, "advance")
 				state = engine.get_state(self.session)
 				self.assertEqual(state["phase"], "explanation")
 				self.assertFalse(state["explanation"]["before_stats"])
-				# nothing is owed to the room after it, so the standings close the question
 				engine.advance_session(self.session_doc, state, "advance")
 				state = engine.get_state(self.session)
 				self.assertEqual(state["phase"], "scoreboard")

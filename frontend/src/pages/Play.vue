@@ -291,8 +291,7 @@ const orderedOptions = computed(() =>
 	question.value ? optionOrder(question.value, player.value.token) : []
 );
 
-// Nothing left to follow once the host removes the player, so the room goes too:
-// its resync watchdog would otherwise keep asking for a session we are out of.
+// stop the room too, or its resync watchdog keeps asking for a session we are out of
 function showKicked() {
 	stopRoom();
 	clearPlayer();
@@ -342,8 +341,7 @@ function showQuestion(payload, remainingSeconds) {
 
 async function showResult(closedMessage) {
 	stopCountdown();
-	// the explanation screen already settled this question; the close event that
-	// follows it must not refetch the same result
+	// the explanation screen already settled this question, so the close event must not refetch
 	if (phase.value === "result" && shownResultFor === closedMessage.question_row) return;
 	shownResultFor = closedMessage.question_row;
 	result.value = await call("trivia_tap.api.get_result", {
@@ -412,8 +410,7 @@ async function restore() {
 			stopCountdown();
 		}
 	} else if (["closed", "explanation", "scoreboard"].includes(state.phase)) {
-		// the beats after the explanation stop carrying it, so a resync landing on one of
-		// them must keep what the phone already has; showQuestion clears it next question
+		// later beats stop carrying it, so a resync there keeps what the phone already has
 		if (state.explanation) explanation.value = state.explanation;
 		await showResult({ question_row: state.question.question_row });
 	} else {
@@ -434,9 +431,7 @@ async function safeRestore() {
 	try {
 		await restore();
 	} catch (e) {
-		// The kick and cancel paths normally arrive over realtime. When that is down the
-		// resync watchdog is what learns about them, and retrying a session the player is
-		// no longer in just 404s every 20s until the tab closes.
+		// kicked or cancelled while realtime was down: retrying would 404 every 20s forever
 		if (e.exc_type === "DoesNotExistError") {
 			clearPlayer();
 			router.replace("/join");

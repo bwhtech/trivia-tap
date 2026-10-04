@@ -1,9 +1,5 @@
-# Load driver: every guest minted by the setup script hammers submit_answer over HTTP,
-# one salvo per question, measuring the concurrency-critical path (mark_answered +
-# Answer insert + batch scoring at close). Run scripts/loadtest_setup.py first.
+# Run scripts/loadtest_setup.py first.
 #   env/bin/python apps/trivia_tap/scripts/loadtest.py
-#
-# Reports per-question and overall submit latency percentiles + error breakdown.
 
 import json
 import os

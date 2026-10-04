@@ -6,8 +6,7 @@
 			:key="quiz.name"
 			class="quiz relative flex items-center gap-3 rounded-2xl border border-haze bg-dusk py-3 pl-5 pr-3 transition hover:border-accent sm:gap-4"
 		>
-			<!-- the link covers the row so the whole card opens the editor, and the buttons
-			     sit above it -->
+			<!-- the link covers the row so the whole card opens the editor, with the buttons above it -->
 			<RouterLink
 				class="min-w-0 flex-1 after:absolute after:inset-0 after:rounded-2xl"
 				:to="`/host/quizzes/${quiz.name}`"
@@ -73,8 +72,7 @@ async function remove(quiz) {
 		await call("frappe.client.delete", { doctype: "TT Quiz", name: quiz.name });
 		await load();
 	} catch (e) {
-		// the framework's own link error names doctypes and links into Desk, which means
-		// nothing to a host who never opens it
+		// the framework's link error names doctypes and Desk links a host never opens
 		error.value =
 			e.exc_type === "LinkExistsError"
 				? `"${quiz.title}" has been played, so it cannot be deleted.`

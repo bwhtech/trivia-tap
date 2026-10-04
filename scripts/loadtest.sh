@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# End-to-end live-quiz load test. Runs from the bench host (production or dev).
-# Arms a session with N bot participants, drives the shared ticker on the real
-# worker, fires one submit salvo per question, prints a latency matrix, cleans up.
+# Runs from the bench host (production or dev).
 #
 #   apps/trivia_tap/scripts/loadtest.sh <players> [origin] [site]
 #
@@ -31,11 +29,7 @@ echo "==> arming session ($PLAYERS participants)"
 TT_LOADTEST_PLAYERS="$PLAYERS" bench --site "$SITE" console < apps/trivia_tap/scripts/loadtest_setup.py \
 	| grep "armed session" || { echo "setup failed (is 'General Knowledge' seeded?)"; exit 1; }
 
-# Drive the ticker in the foreground, not via the RQ worker. loadtest_setup.py arms
-# the game with low-level calls, and the dev bench's single worker will not schedule
-# the shared ticker before the get_ready state's TTL expires under a large arm. A
-# foreground loop advances the game deterministically. It exits on its own once the
-# active-sessions set is cleared in cleanup.
+# the dev bench's single RQ worker cannot schedule the ticker before a large arm's get_ready TTL expires
 echo "==> starting ticker (foreground)"
 echo 'from trivia_tap import engine; engine.run_ticker()' | bench --site "$SITE" console > /dev/null 2>&1 &
 TICKER_PID=$!

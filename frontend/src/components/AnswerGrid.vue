@@ -1,4 +1,3 @@
-<!-- The projector answer grid, shared by the live host screen and the editor preview. -->
 <template>
 	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 		<div

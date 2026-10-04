@@ -76,7 +76,6 @@ import HostAvatar from "@/components/HostAvatar.vue";
 import { LOGO_URL, theme } from "@/theme";
 
 defineProps({
-	// off where the page has its own primary action
 	showNewQuiz: { type: Boolean, default: true },
 });
 

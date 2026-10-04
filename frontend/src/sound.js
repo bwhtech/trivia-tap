@@ -2,8 +2,7 @@ import { ref } from "vue";
 
 const KEY = "tt_muted";
 
-// Phones in a room all unmuting at once is a bad time, so players start silent
-// while the host screen, which is the one plugged into speakers, starts audible.
+// a room of phones all playing at once is noise; the host screen is the one on speakers
 const DEFAULT_MUTED = { host: false, player: true };
 
 export const muted = ref(true);
@@ -33,8 +32,7 @@ export function playCue(name) {
 	const cue = CUES[name];
 	if (muted.value || !cue) return;
 
-	// Constructed on the first cue, which only ever follows a tap, so autoplay
-	// policy is satisfied without tracking gestures ourselves.
+	// the first cue always follows a tap, which satisfies the autoplay policy
 	context = context || new (window.AudioContext || window.webkitAudioContext)();
 	if (context.state === "suspended") context.resume();
 

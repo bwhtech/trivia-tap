@@ -15,8 +15,7 @@ export const OPTIONS = ["1", "2", "3", "4"];
 export const MIN_SECONDS = 5;
 export const MAX_SECONDS = 120;
 
-// Rows only get a name once saved; the editor needs a stable key before that to
-// keep drag and the selection on the right question.
+// rows only get a name once saved, and drag and selection need a stable key before that
 let lastKey = 0;
 
 export function withKey(question) {

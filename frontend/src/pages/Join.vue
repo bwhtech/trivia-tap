@@ -102,9 +102,7 @@
 					<span class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45">
 						Swipe for a face
 					</span>
-					<!-- The bleed lives on the wrapper so the scroller's 50% end padding,
-					     which is what lets the first and last face reach the centre line,
-					     measures against the full-bleed width. -->
+					<!-- bleed on the wrapper so the scroller's 50% end padding measures the full width -->
 					<div
 						class="-mx-5 [mask-image:linear-gradient(to_right,transparent,#000_18%,#000_82%,transparent)]"
 					>
@@ -203,8 +201,7 @@ function select(id) {
 	nextTick(() => centerSelected("smooth"));
 }
 
-// The highlight stays put and the faces move under it, so the pick is whatever
-// the scroll parks in the centre. Snapping keeps it off the gaps between faces.
+// the highlight stays put and the faces scroll under it, so the pick is whatever parks in the centre
 function pickCentered() {
 	const row = scroller.value;
 	if (!row) return;

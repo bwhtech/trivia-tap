@@ -76,13 +76,7 @@ function mulberry32(seed) {
 	};
 }
 
-/**
- * Subscribe to a session's realtime room.
- *
- * socket.io reconnects on its own but the server-side room membership is gone,
- * so every reconnect has to re-emit tt_join. `resync` then repairs whatever was
- * missed while the socket was down.
- */
+// a socket.io reconnect loses the server-side room membership, so every reconnect re-emits tt_join
 export function useSessionRoom(socket, pin, onEvent, resync) {
 	const eventName = `tt_session_${pin}`;
 	let lastEventAt = Date.now();
@@ -102,11 +96,7 @@ export function useSessionRoom(socket, pin, onEvent, resync) {
 	socket.on("connect", join);
 	join();
 
-	// A socket can go quiet without ever firing `connect` again: the room membership
-	// is lost or a reconnect never lands, and the screen then freezes for good. Long
-	// silences are normal between questions, so a live socket is only rejoined after a
-	// very quiet stretch. Once the socket is down this resync is the whole transport,
-	// and a quiz is unplayable if a question takes 20 seconds to show up.
+	// a socket can go quiet without firing `connect` again, which would freeze the screen for good
 	const watchdog = setInterval(() => {
 		const limit = socket.connected ? SILENCE_LIMIT_MS : OFFLINE_RESYNC_MS;
 		if (Date.now() - lastEventAt > limit) join();
@@ -126,7 +116,7 @@ export function useSessionRoom(socket, pin, onEvent, resync) {
 	return stop;
 }
 
-/** Local countdown. Ticks off elapsed wall time, never off the server clock. */
+// ticks off local elapsed time, never the server clock, so clock skew cannot matter
 export function useCountdown() {
 	const remaining = ref(0);
 	const total = ref(0);

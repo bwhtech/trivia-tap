@@ -1,5 +1,4 @@
-# Fills a live session with plausible players so the README screenshots show a
-# populated lobby, distribution and podium. Throwaway: run it, take the pictures.
+# Fills a live session with players for the README screenshots.
 #
 #   python scripts/demo_bots.py join 123456
 #   python scripts/demo_bots.py answer 123456

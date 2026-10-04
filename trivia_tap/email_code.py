@@ -17,8 +17,6 @@ SUBJECTS = {
 
 
 class EmailCode:
-	"""A 6-digit code mailed to prove the caller reads this inbox, kept hashed in Redis."""
-
 	def __init__(self, purpose: str, email: str):
 		self.purpose = purpose
 		self.email = email
