@@ -15,31 +15,10 @@
 				class="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-8 p-5 pb-20 sm:p-8 sm:pb-20"
 			>
 				<h1 class="font-display text-4xl font-extrabold text-paper sm:text-5xl">
-					Pick a quiz
+					Your quizzes
 				</h1>
 				<p v-if="error" class="text-alert">{{ error }}</p>
-				<div v-if="quizzes.length" class="flex flex-col gap-2">
-					<button
-						v-for="(quiz, index) in quizzes"
-						:key="quiz.name"
-						class="group flex items-center gap-4 rounded-2xl border border-haze bg-dusk px-5 py-4 text-left transition hover:border-accent"
-						@click="createSession(quiz.name)"
-					>
-						<span class="font-mono text-xs tabular-nums text-paper/35">
-							{{ String(index + 1).padStart(2, "0") }}
-						</span>
-						<span class="flex-1 font-display text-xl font-bold text-paper">
-							{{ quiz.title }}
-						</span>
-						<span class="text-paper/25 transition group-hover:text-alert">→</span>
-					</button>
-				</div>
-				<p v-else-if="loaded" class="text-paper/50">
-					No quizzes yet. Write your first one.
-				</p>
-				<RouterLink v-if="!quizzes.length" class="ctl self-start" to="/host/quizzes/new">
-					New quiz
-				</RouterLink>
+				<QuizLibrary @play="createSession" />
 			</div>
 		</template>
 
@@ -507,6 +486,7 @@ import AvatarPic from "@/components/AvatarPic.vue";
 import ThemeButton from "@/components/ThemeButton.vue";
 import DrainRing from "@/components/DrainRing.vue";
 import HostBar from "@/components/HostBar.vue";
+import QuizLibrary from "@/components/QuizLibrary.vue";
 import { initSound, muted, playCue, toggleMute } from "@/sound";
 import AnimatedQr from "@/components/AnimatedQr.vue";
 
@@ -526,8 +506,6 @@ const {
 	stop: stopCountdown,
 } = useCountdown();
 
-const quizzes = ref([]);
-const loaded = ref(false);
 const session = ref(null);
 const phase = ref("lobby");
 const participants = ref([]);
@@ -785,10 +763,7 @@ onMounted(async () => {
 		if (state.session) {
 			await applyState(state);
 			useSessionRoom(socket, state.game_pin, onSessionEvent, refresh);
-			return;
 		}
-		quizzes.value = await call("trivia_tap.api.list_quizzes");
-		loaded.value = true;
 	} catch (e) {
 		error.value = readError(e);
 	}

@@ -14,11 +14,7 @@ const routes = [
 		name: "Profile",
 		component: () => import("@/pages/Profile.vue"),
 	},
-	{
-		path: "/host/quizzes",
-		name: "Quizzes",
-		component: () => import("@/pages/QuizList.vue"),
-	},
+	{ path: "/host/quizzes", redirect: "/host" },
 	{
 		path: "/host/quizzes/:name",
 		name: "QuizEditor",
