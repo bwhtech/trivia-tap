@@ -3,6 +3,7 @@ from frappe.tests import IntegrationTestCase
 
 from trivia_tap.api import (
 	create_session,
+	get_state,
 	join_session,
 	kick_participant,
 	leave_session,
@@ -101,5 +102,16 @@ class TestLobbyFlow(IntegrationTestCase):
 		try:
 			with self.assertRaises(frappe.PermissionError):
 				lock_lobby(self.session)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_wrong_pin_and_wrong_token_look_the_same(self):
+		self.join_as_guest("dave")
+		wrong_pin = "000000" if self.pin != "000000" else "000001"
+		frappe.set_user("Guest")
+		try:
+			for pin in (wrong_pin, self.pin):
+				with self.assertRaisesRegex(frappe.PermissionError, "Not a participant"):
+					get_state(pin, "not-a-token")
 		finally:
 			frappe.set_user("Administrator")
