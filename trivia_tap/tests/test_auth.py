@@ -1,12 +1,15 @@
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 import frappe
 from frappe.tests import IntegrationTestCase
+from frappe.utils.oauth import consume_oauth_state, update_oauth_user
 from frappe.utils.password import check_password
 
 from trivia_tap.auth import (
 	change_password,
 	login_with_code,
+	login_with_google,
 	reset_password,
 	reset_password_with_link,
 	send_code,
@@ -14,6 +17,7 @@ from trivia_tap.auth import (
 	sign_up,
 )
 from trivia_tap.email_code import MAX_TRIES
+from trivia_tap.patches import brand_site
 
 EMAIL = "new.host@example.com"
 PASSWORD = "Quiz-Host-Pass-2026!"
@@ -236,3 +240,66 @@ class TestResetLink(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			send_reset_link()
 		self.mail.assert_not_called()
+
+
+class TestGoogleLogin(IntegrationTestCase):
+	def setUp(self):
+		frappe.delete_doc_if_exists("Social Login Key", "google", force=True)
+		frappe.delete_doc_if_exists("User", EMAIL, force=True)
+		frappe.set_user("Guest")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.delete_doc_if_exists("User", EMAIL, force=True)
+		frappe.local.response.pop("location", None)
+		super().tearDown()
+
+	def enable_google(self):
+		key = frappe.new_doc("Social Login Key")
+		key.update(key.get_social_login_provider("Google"))
+		key.update({"client_id": "test-client", "client_secret": "test-secret", "sign_ups": "Allow"})
+		key.insert(ignore_permissions=True)
+
+	def google_redirect(self, redirect_to):
+		login_with_google(redirect_to)
+		location = urlsplit(frappe.local.response["location"])
+		return location, parse_qs(location.query)
+
+	def test_refuses_when_not_set_up(self):
+		with self.assertRaisesRegex(frappe.ValidationError, "not set up"):
+			login_with_google("/host")
+
+	def test_redirects_to_google_and_back_into_the_spa(self):
+		self.enable_google()
+
+		location, query = self.google_redirect("/host/profile")
+
+		self.assertEqual(location.netloc, "accounts.google.com")
+		self.assertEqual(query["client_id"], ["test-client"])
+		self.assertTrue(query["redirect_uri"][0].endswith("oauth2_logins.login_via_google"))
+		self.assertEqual(consume_oauth_state(query["state"][0]), "/trivia-tap/host/profile")
+
+	def test_keeps_the_landing_page_on_site(self):
+		self.enable_google()
+
+		for redirect_to in ("https://evil.example", "//evil.example"):
+			_, query = self.google_redirect(redirect_to)
+			self.assertEqual(consume_oauth_state(query["state"][0]), "/trivia-tap/host")
+
+	def test_google_sign_up_lands_as_a_quiz_host(self):
+		self.enable_google()
+		frappe.set_user("Administrator")
+		frappe.db.set_single_value("Portal Settings", "default_role", "")
+		brand_site.execute()
+		frappe.set_user("Guest")
+
+		update_oauth_user(
+			EMAIL,
+			{"id": "google-123", "email": EMAIL, "given_name": "Grace", "verified_email": True},
+			"google",
+		)
+
+		user = frappe.get_doc("User", EMAIL)
+		self.assertIn("Quiz Host", frappe.get_roles(EMAIL))
+		self.assertEqual(user.user_type, "System User")
+		self.assertEqual(user.get_social_login_userid("google"), "google-123")
