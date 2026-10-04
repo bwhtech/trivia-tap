@@ -1,5 +1,19 @@
 # Progress
 
+## Phase 21: One quiz list (2026-10-04)
+
+Spec: `specs/phase-21-one-quiz-list.md`.
+
+### Done
+
+- The Play and Library tabs are gone. `/host` shows "Your quizzes" from `QuizLibrary.vue`: clicking a row opens the editor, Play on the right starts a session, a quiet trash button deletes.
+- Play stays a plain pill and lights up in brand green only on the hovered or focused row, so a column of green buttons does not drown out New quiz.
+- `QuizList.vue` is gone and `/host/quizzes` redirects to `/host`.
+
+### Exit criteria verified
+
+Headless browser: row click opens `/host/quizzes/<name>`, Play opens the lobby, Close lobby returns to the list, `/host/quizzes` lands on `/host`, layout holds at 390px.
+
 ## Phase 20: Animated join QR (2026-10-04)
 
 Spec: `specs/phase-20-animated-qr.md`.

@@ -10,10 +10,6 @@
 			<img alt="" class="size-7 rounded-md" :src="LOGO_URL" />
 			<span class="hidden sm:inline">TriviaTap</span>
 		</RouterLink>
-		<nav class="-mb-px flex items-stretch gap-4 self-stretch sm:gap-5">
-			<RouterLink class="tab" :data-on="isPlaying" to="/host">Play</RouterLink>
-			<RouterLink class="tab" :data-on="isLibrary" to="/host/quizzes">Library</RouterLink>
-		</nav>
 		<RouterLink
 			class="ctl ctl-go ml-auto shrink-0 gap-1.5 max-sm:size-10 max-sm:p-0"
 			to="/host/quizzes/new"
@@ -73,19 +69,13 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { useRoute } from "vue-router";
 import { firstName, logout } from "@/host";
 import HostAvatar from "@/components/HostAvatar.vue";
 import { LOGO_URL, theme } from "@/theme";
 
 const THEMES = ["auto", "light", "dark"];
 
-const route = useRoute();
 const user = window.session_user;
-
-const isPlaying = computed(() => route.path === "/host");
-const isLibrary = computed(() => route.path.startsWith("/host/quizzes"));
 
 function closeMenu() {
 	document.getElementById("account-menu").hidePopover();
@@ -93,25 +83,6 @@ function closeMenu() {
 </script>
 
 <style scoped>
-.tab {
-	display: flex;
-	align-items: center;
-	border-bottom: 2px solid transparent;
-	color: rgb(var(--paper) / 0.55);
-	font-weight: 500;
-	transition: color 0.15s;
-}
-
-.tab:hover,
-.tab[data-on="true"] {
-	color: rgb(var(--paper));
-}
-
-.tab[data-on="true"] {
-	border-bottom-color: rgb(var(--accent));
-	font-weight: 600;
-}
-
 /* Popovers open centred in the top layer; pin this one under the avatar. */
 .account-menu {
 	inset: 4.25rem 1rem auto auto;
