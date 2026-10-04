@@ -4,7 +4,7 @@
 		<textarea
 			ref="questionInput"
 			v-model="question.question_text"
-			rows="2"
+			rows="1"
 			class="question-text field !bg-dusk text-center font-display text-2xl font-extrabold leading-tight sm:text-4xl"
 			placeholder="Type your question"
 			aria-label="Question"
@@ -70,7 +70,7 @@ defineExpose({ focus: () => questionInput.value?.focus() });
 /* grows with the text instead of scrolling inside a two-line box */
 .question-text {
 	field-sizing: content;
-	min-height: 6rem;
+	padding-block: 1.5rem;
 	resize: none;
 }
 
