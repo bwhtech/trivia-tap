@@ -41,6 +41,21 @@
 				</button>
 			</div>
 
+			<template v-if="showGoogle">
+				<a
+					class="mt-6 flex items-center justify-center gap-3 rounded-2xl border border-haze bg-dusk py-3.5 font-medium text-paper transition hover:border-paper/40"
+					:href="googleUrl"
+				>
+					<img alt="" class="size-5" :src="GOOGLE_ICON" />
+					Continue with Google
+				</a>
+				<p
+					class="mt-6 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-paper/35 before:h-px before:flex-1 before:bg-haze after:h-px after:flex-1 after:bg-haze"
+				>
+					or with email
+				</p>
+			</template>
+
 			<form class="mt-6 flex flex-col gap-5" @submit.prevent="submit">
 				<label v-if="flow === 'signup' && !codeSent" class="flex flex-col gap-2">
 					<span class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
@@ -153,6 +168,8 @@ import PasswordInput from "@/components/PasswordInput.vue";
 import ThemeButton from "@/components/ThemeButton.vue";
 import { LOGO_URL } from "@/theme";
 
+const GOOGLE_ICON = "/assets/frappe/icons/social/google.svg";
+
 const TABS = [
 	{ flow: "login", label: "Log in" },
 	{ flow: "signup", label: "Sign up" },
@@ -197,6 +214,15 @@ const busy = ref(false);
 const error = ref("");
 
 const current = computed(() => FLOWS[flow.value]);
+const showGoogle = computed(
+	() => window.google_login && !codeSent.value && ["login", "signup"].includes(flow.value)
+);
+const googleUrl = computed(
+	() =>
+		`/api/method/trivia_tap.auth.login_with_google?redirect_to=${encodeURIComponent(
+			redirectPath()
+		)}`
+);
 // sign up takes the password before the code, reset takes it after
 const asksPassword = computed(
 	() =>

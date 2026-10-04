@@ -44,6 +44,11 @@ Login page -> GET trivia_tap.auth.login_with_google?redirect_to=/host
 3. Desk > Social Login Key > New > Social Login Provider: Google. Paste the
    client ID and secret, tick Enable Social Login. Sign ups: Allow.
 
+Google refuses a plain `http` redirect URI unless the host is `localhost`, so
+`http://trivia-tap.localhost:8000` fails with "doesn't comply with Google's
+OAuth 2.0 policy". Locally, make the site the bench default and use
+`http://localhost:8000`.
+
 ## Tracer bullet
 
 1. Backend method, boot flag, role patch, tests. **Feedback: the method

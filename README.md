@@ -94,6 +94,22 @@ yarn install
 yarn dev
 ```
 
+### Google login (optional)
+
+Hosts can sign up and log in with Google once the site has a Google key.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+   create an OAuth client ID of type Web application.
+2. Add this authorized redirect URI:
+   `<site url>/api/method/frappe.integrations.oauth2_logins.login_via_google`
+3. In Desk, open Social Login Key, add a new one with provider Google, paste
+   the client ID and secret, tick Enable Social Login and set Sign ups to Allow.
+
+Google only accepts plain `http` for `localhost`, not `your-site.localhost`. To
+try it locally, run `bench use your-site.localhost`, open
+`http://localhost:8000/trivia-tap/login` and register
+`http://localhost:8000/api/method/frappe.integrations.oauth2_logins.login_via_google`.
+
 ## Testing
 
 ```bash
