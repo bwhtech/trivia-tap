@@ -1,8 +1,4 @@
-# Load-test setup. Runs in frappe context so it can mint participants without the
-# single-IP join throttle (an artifact of driving from one host, not the system).
-# It also arms the game (Active + first get_ready) so a foreground run_ticker can
-# drive it deterministically, instead of depending on the dev bench's single RQ
-# worker actually scheduling the shared ticker in time.
+# Runs in frappe context to skip the single-IP join throttle, which one load host would trip.
 #   bench --site trivia-tap.localhost console < scripts/loadtest_setup.py
 # Writes pin + tokens to /tmp/trivia_tap_loadtest.json for scripts/loadtest.py to drive.
 

@@ -1,6 +1,5 @@
 <template>
-	<!-- Unstyled on purpose: the host wears this as a `ctl` pill and the players
-	     as a bare header icon. Only the glyph and the cycling are shared. -->
+	<!-- Unstyled: the host wears this as a `ctl` pill and the players as a bare header icon. -->
 	<button
 		type="button"
 		:aria-label="`Theme: ${theme}`"

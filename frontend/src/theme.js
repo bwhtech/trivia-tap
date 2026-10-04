@@ -7,8 +7,7 @@ export { default as MASCOT_URL } from "@/assets/trivia-tap-mascot.svg?url";
 const STORAGE_KEY = "trivia-tap-theme";
 const NEXT = { auto: "light", light: "dark", dark: "auto" };
 
-// "auto" leaves the attribute off entirely, so index.css falls through to
-// prefers-color-scheme. The other two pin it against the OS.
+// "auto" leaves the attribute off, so index.css falls through to prefers-color-scheme
 export const theme = ref(localStorage.getItem(STORAGE_KEY) || "auto");
 
 export function cycleTheme() {

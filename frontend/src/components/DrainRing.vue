@@ -1,5 +1,3 @@
-<!-- Time as a draining arc. The number stays put while the ring empties, so a
-     glance at the shape is enough — no reading required. -->
 <template>
 	<div class="relative shrink-0" :style="{ width: `${size}px`, height: `${size}px` }">
 		<div

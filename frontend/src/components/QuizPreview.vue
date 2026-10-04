@@ -1,5 +1,3 @@
-<!-- The quiz as the room will see it, played from the editor's own state:
-     no session, no players, the same clocks the engine runs on. -->
 <template>
 	<dialog
 		ref="dialog"
@@ -23,7 +21,6 @@
 			</header>
 
 			<div v-if="beat" class="flex flex-1 flex-col overflow-y-auto p-4 sm:p-8">
-				<!-- Read time: the question on its own, answers still held back -->
 				<div
 					v-if="beat.view === 'get_ready'"
 					class="m-auto flex flex-col items-center gap-8 text-center sm:gap-10"
@@ -174,8 +171,7 @@ const beats = computed(() =>
 const beat = computed(() => beats.value[index.value]);
 const atEnd = computed(() => index.value >= beats.value.length - 1);
 
-// against the beat's own window, not the countdown's, so a resume after a pause
-// picks the ring up where it stopped instead of refilling it
+// against the beat's window, not the countdown's, so a resume after pause does not refill the ring
 const percent = computed(() => (beat.value ? (remaining.value / beat.value.seconds) * 100 : 0));
 
 watch(

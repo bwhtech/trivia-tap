@@ -247,8 +247,7 @@ function editedFields() {
 		explanation_time_limit:
 			clampSeconds(settings.explanation_time_limit) || DEFAULT_EXPLANATION_SECONDS,
 		explanation_position: settings.explanation_position,
-		// rebuilt without name or idx: frappe keeps an idx it is given, so a row that
-		// carried its old one would ignore the reorder
+		// no name or idx: frappe keeps an idx it is given, so the reorder would be ignored
 		questions: questions.value.map((question) => ({
 			doctype: "TT Question",
 			...Object.fromEntries(QUESTION_FIELDS.map((field) => [field, question[field]])),

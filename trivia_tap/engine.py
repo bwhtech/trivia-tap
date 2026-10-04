@@ -1,10 +1,4 @@
-"""Server-authoritative game loop and hot state for live sessions.
-
-One shared RQ ticker advances every active session's state machine. Clients never tick:
-each question payload carries a server-set deadline_ts and clients render
-their own countdown. Redis (frappe.cache) is the fast gate for submit
-validation; the DB is the durable record.
-"""
+"""Clients never tick: one shared ticker drives every session, and Redis gates submits before the DB records them."""
 
 import time
 
@@ -17,15 +11,13 @@ STATS_SECONDS = 5
 SCOREBOARD_SECONDS = 5
 GETREADY_SECONDS = 3
 EXPLANATION_SECONDS = 10
-# ponytail: host gets 5 minutes to hit Next, then the game moves on by itself
 ADVANCE_WAIT_CAP = 300
 TICK_SECONDS = 0.5
-# ponytail: broadcast the live "N answered" counter at most this often, not once per submit
 ANSWER_COUNT_THROTTLE = 0.3
 STATE_TTL_MARGIN = 30
 STREAK_CALLOUT_MIN = 3
 ACTIVE_SESSIONS_KEY = "tt:active_sessions"
-# ponytail: one shared ticker for all games; 6h covers any single game, re-enqueue on timeout is a Phase 2 scale concern
+# 6h covers any single game; re-enqueue on timeout if games ever run longer
 TICKER_TIMEOUT = 21600
 
 
@@ -48,9 +40,7 @@ def enqueue_game_loop(session_doc) -> None:
 
 
 def run_ticker() -> None:
-	"""One shared self-looping job. Advances every active session on time or host command."""
-	# process-local: the ticker is a single deduplicated job, so per-session throttle
-	# state and immutable pins live safely in memory for this run.
+	# safe in process memory: the ticker is a single deduplicated job
 	answer_count_state: dict = {}
 	pin_cache: dict = {}
 	while True:
@@ -79,8 +69,7 @@ def run_ticker() -> None:
 
 
 def maybe_push_answer_count(session: str, state: dict, throttle_state: dict, pin_cache: dict) -> None:
-	"""Broadcast the live answered count, but only while a question is open, only on change,
-	and at most every ANSWER_COUNT_THROTTLE seconds. Replaces the per-submit broadcast storm."""
+	"""Throttled, because a broadcast per submit floods every phone in the room."""
 	if state["phase"] != "question":
 		return
 	question_row = state["question_row"]
@@ -115,7 +104,6 @@ def prune_ticker_caches(sessions: list[str], *caches: dict) -> None:
 
 
 def advance_session(session_doc, state: dict, control: str | None) -> None:
-	"""Walk the per-session state machine one step: phase + host control -> next phase."""
 	if control == "end":
 		finish_session(session_doc)
 		return
@@ -157,7 +145,6 @@ def next_question(session_doc, questions, index: int, total: int) -> None:
 
 
 def get_ready(session_doc, question, index: int, total: int) -> None:
-	"""Read-the-question pause before the clock starts, Kahoot style."""
 	now = time.time()
 	deadline_ts = now + GETREADY_SECONDS
 	set_state(
@@ -287,9 +274,7 @@ def close_question(session_doc, question, index: int, total: int) -> None:
 
 
 def show_explanation(session_doc, state: dict, explanation: dict, closed: dict | None = None) -> None:
-	"""Teaching beat. `closed` is the scoreboard payload still owed to the room, parked in
-	state so the stats step does not recompute what is already settled; with the explanation
-	set to come after the stats there is nothing left to park."""
+	"""`closed` is parked in state so the stats step does not recompute what is already settled."""
 	seconds = hold_seconds(session_doc, explanation_window(session_doc))
 	explanation = {**explanation, "seconds": seconds, "before_stats": bool(closed)}
 	next_ts = time.time() + seconds
@@ -326,7 +311,6 @@ def show_stats(session_doc, state: dict, closed: dict, explanation_after: dict |
 
 
 def show_standings(session_doc, state: dict, questions, index: int, total: int) -> None:
-	"""Standings are the last beat of a question. On the last one the podium says it better."""
 	scoreboard = state.get("scoreboard")
 	if scoreboard and index < total - 1:
 		show_scoreboard(session_doc, state, scoreboard)
@@ -335,7 +319,6 @@ def show_standings(session_doc, state: dict, questions, index: int, total: int) 
 
 
 def show_scoreboard(session_doc, state: dict, scoreboard: dict) -> None:
-	"""Who is where now, and where they were before the points landed."""
 	next_ts = time.time() + hold_seconds(session_doc, SCOREBOARD_SECONDS)
 	set_state(
 		session_doc.name,
@@ -346,8 +329,7 @@ def show_scoreboard(session_doc, state: dict, scoreboard: dict) -> None:
 
 
 def build_standings(participants: list, gained: dict, top: int = 5) -> list[dict]:
-	"""Both places every row has to be in: the one it starts the screen at and the one it
-	climbs to. Ties break on join time, the same way the podium ranks them."""
+	"""Ties break on join time, the same way the podium ranks them."""
 
 	def in_order(score_of):
 		return sorted(participants, key=lambda p: (-score_of(p), p.joined_at or now_datetime()))
@@ -387,7 +369,6 @@ def explanation_first(session_doc) -> bool:
 
 
 def explanation_payload(session_doc, question, index: int, total: int) -> dict | None:
-	"""Only when the quiz asks for it and the question has something to say."""
 	if not get_quiz(session_doc).show_explanation:
 		return None
 	if not (question.explanation or question.explanation_image):
@@ -413,10 +394,7 @@ def is_loop_alive(session: str) -> bool:
 
 
 def is_abandoned(session_doc) -> bool:
-	"""Active but nothing is driving it: the worker died or was restarted mid-game.
-
-	The age check covers the gap between start_session and the loop's first state write.
-	"""
+	"""The age check covers the gap between start_session and the loop's first state write."""
 	if session_doc.status != "Active" or is_loop_alive(session_doc.name):
 		return False
 	last_touched = session_doc.started_at or session_doc.modified
@@ -424,7 +402,7 @@ def is_abandoned(session_doc) -> bool:
 
 
 def end_active_session(session_doc) -> None:
-	"""Ask the loop to stop. With no loop left to read the flag, end it here instead."""
+	"""With no loop left to read the stop flag, end it here instead."""
 	if is_loop_alive(session_doc.name):
 		set_control(session_doc.name, "end")
 	else:
@@ -466,7 +444,7 @@ def finish_session(session_doc) -> None:
 
 
 def compute_points(response_ms: int, window_ms: int, streak: int, multiplier: int) -> int:
-	"""Kahoot formula. `streak` is the participant's streak including this answer."""
+	"""`streak` includes this answer."""
 	response_ms = min(max(response_ms or 0, 0), window_ms)
 	base = round((1 - (response_ms / window_ms) / 2) * 1000)
 	bonus = min(streak - 1, 5) * 50
@@ -490,8 +468,7 @@ def set_state(session: str, state: dict, ttl: float) -> None:
 
 
 def get_state(session: str) -> dict | None:
-	# never from process-local cache: the long-lived ticker must see state that
-	# expired or was written by another process, or it spins on a vanished session
+	# no local cache: the long-lived ticker would spin on a session that expired elsewhere
 	return frappe.cache.get_value(state_key(session), use_local_cache=False)
 
 
@@ -517,7 +494,6 @@ def clear_control(session: str) -> None:
 
 
 def mark_answered(session: str, question_row: str, participant: str, ttl: float) -> bool:
-	"""Fast duplicate pre-check. Returns False if this participant already answered."""
 	if has_answered(session, question_row, participant):
 		return False
 	key = answered_key(session, question_row)

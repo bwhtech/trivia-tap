@@ -1,7 +1,6 @@
 import frappe
 
-# Players and answers are created by guests, so an if_owner rule cannot scope them.
-# A host sees them through the session they host.
+# Guests create players and answers, so an if_owner rule cannot scope them.
 
 
 def session_host_query(user: str | None = None, doctype: str | None = None) -> str:

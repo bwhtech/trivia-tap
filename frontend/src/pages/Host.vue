@@ -1,14 +1,13 @@
 <template>
 	<div class="flex h-full flex-col overflow-y-auto bg-night">
-		<!-- Looking back is host-side only, so the room needs to be told the game is still
-		     waiting where it was. -->
+		<!-- looking back is host-side only, so the room is told the game still waits where it was -->
 		<p
 			v-if="reviewing"
 			class="pointer-events-none fixed inset-x-0 top-0 z-10 bg-dusk/90 py-2 text-center font-mono text-[11px] uppercase tracking-[0.28em] text-accent"
 		>
 			Looking back · press → to return to the game
 		</p>
-		<!-- A live game owns the projector; nav on it is something the room looks at instead of the PIN. -->
+		<!-- no nav during a game: the room would look at it instead of the PIN -->
 		<template v-if="!session">
 			<HostBar />
 			<div
@@ -22,13 +21,11 @@
 			</div>
 		</template>
 
-		<!-- Lobby -->
 		<template v-else-if="phase === 'lobby'">
 			<div class="flex min-h-0 flex-1 flex-col justify-center gap-8 p-5 sm:gap-12 sm:p-8">
 				<div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14">
 					<div class="min-w-0 text-center sm:text-left">
-						<!-- inline, not a flex row: the icon has to follow the last line when a
-						     long join host wraps on a phone -->
+						<!-- inline, not flex: the icon follows the last line when a long host wraps -->
 						<p
 							class="break-all font-mono text-xs tracking-wide text-accent sm:text-sm"
 						>
@@ -88,14 +85,12 @@
 						{{ participants.length }}
 						{{ participants.length === 1 ? "player" : "players" }} in
 					</p>
-					<!-- only a sample of the room gets a chip: a full lobby of names reads as
-					     noise on a projector and pushes Start off the screen. -->
+					<!-- only a sample gets a chip: a full lobby of names pushes Start off the screen -->
 					<div
 						v-if="participants.length"
 						class="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2.5 p-1"
 					>
-						<!-- The chip itself is not the kick target: a full-name-sized button is
-						     too easy to hit by accident on a projector. -->
+						<!-- not the whole chip: a full-name-sized kick button is too easy to hit by accident -->
 						<div
 							v-for="participant in visibleParticipants"
 							:key="participant.name"
@@ -167,7 +162,6 @@
 			</dialog>
 		</template>
 
-		<!-- Podium -->
 		<template v-else-if="phase === 'podium'">
 			<div
 				class="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 p-5 sm:gap-10 sm:p-8"
@@ -225,7 +219,6 @@
 			</div>
 		</template>
 
-		<!-- Scoreboard: the points land, then the rows climb to their new places -->
 		<template v-else-if="phase === 'scoreboard'">
 			<div
 				class="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 p-5 sm:gap-8 sm:p-8"
@@ -251,8 +244,7 @@
 						class="flex items-center gap-4 rounded-2xl border bg-dusk px-4 py-3 sm:px-5 sm:py-4"
 						:class="settled && entry.rank === 1 ? 'border-accent' : 'border-haze'"
 					>
-						<!-- until the rows land, the number is where the row sits, not the rank it
-						     came from: a top five missing a player who fell out of it would gap -->
+						<!-- position until the rows land: old ranks would gap where a player fell out -->
 						<span class="w-6 shrink-0 font-mono text-lg tabular-nums text-paper/35">
 							{{ settled ? entry.rank : place + 1 }}
 						</span>
@@ -307,7 +299,6 @@
 			</div>
 		</template>
 
-		<!-- Read time: question only, no answers yet -->
 		<template v-else-if="phase === 'get_ready'">
 			<div
 				class="flex flex-1 flex-col items-center justify-center gap-8 p-5 text-center sm:gap-10 sm:p-8"
@@ -329,7 +320,6 @@
 			</div>
 		</template>
 
-		<!-- Why that answer: the beat between the buzzer and the scoreboard -->
 		<template v-else-if="phase === 'explanation'">
 			<div class="flex flex-1 flex-col p-4 sm:p-8">
 				<div
@@ -379,13 +369,11 @@
 			</div>
 		</template>
 
-		<!-- Question / results -->
 		<template v-else>
 			<!-- m-auto, not justify-center: a centered flex column clips its top when it overflows -->
 			<div class="flex flex-1 flex-col p-4 sm:p-8">
 				<div class="m-auto flex w-full max-w-6xl flex-col gap-5 sm:gap-7">
-					<!-- on a phone the question takes its own row: a timer and a counter beside it
-					     leave the text in a column too narrow to read -->
+					<!-- wraps on a phone: beside the timer and counter the text column is too narrow -->
 					<div class="flex flex-wrap items-center gap-4 sm:gap-6">
 						<DrainRing
 							v-if="phase === 'question'"
@@ -564,7 +552,6 @@ watch(
 	}
 );
 
-// tallest bar fills the chart; the rest scale against it
 const barHeight = (optionId) => {
 	const counts = Object.values(distribution.value);
 	const max = Math.max(1, ...counts);
@@ -572,7 +559,6 @@ const barHeight = (optionId) => {
 	return Math.max(3, ((distribution.value[optionId] || 0) / max) * 100);
 };
 
-// After the last question there is nothing left to stand on but the podium.
 const afterQuestionLabel = computed(() =>
 	(question.value?.q_index ?? 0) >= (question.value?.total ?? 1) - 1
 		? "Final results"
@@ -581,7 +567,7 @@ const afterQuestionLabel = computed(() =>
 
 const reviewing = computed(() => reviewAt.value !== null);
 
-// 2nd, 1st, 3rd — the winner stands in the middle
+// the winner stands in the middle
 const podiumOrder = computed(() =>
 	[leaderboard.value[1], leaderboard.value[0], leaderboard.value[2]].filter(Boolean)
 );
@@ -639,8 +625,7 @@ function onSessionEvent(message) {
 	}
 }
 
-// The screen opens on the standings the room already knows, then the points land and
-// the rows race to where they belong. `animate` is off on a reload: nothing to replay.
+// `animate` is off on a reload: nothing to replay
 function showScoreboard(message, animate = true) {
 	const entries = message.standings || [];
 	clearTimeout(climbTimer);
@@ -690,8 +675,7 @@ async function copyJoinUrl() {
 }
 
 async function applyState(state) {
-	// no session left to host: it was cancelled, or ended in another tab. Painting a game
-	// screen off an empty state is what put a NaN clock on the projector.
+	// cancelled or ended in another tab: an empty state would paint a NaN clock
 	if (!state.session) return reset();
 	session.value = { name: state.session, game_pin: state.game_pin };
 	localStorage.setItem(HOSTED_SESSION_KEY, state.session);
@@ -733,8 +717,7 @@ async function applyState(state) {
 		question.value = { ...state.question, options: [] };
 		startCountdown(state.remaining_seconds);
 	}
-	// a resync is the new truth: the look-back starts again from what is on screen now,
-	// or from nothing when the screen is not one the host can look back at
+	// a resync is the new truth, so the look-back restarts from what is on screen now
 	reviewAt.value = null;
 	liveFrame = null;
 	history.value = REVIEW_PHASES.includes(phase.value) ? [readFrame()] : [];
@@ -816,23 +799,19 @@ async function kick(participant) {
 	await hostCall("trivia_tap.api.kick_participant", { participant: participant.name });
 }
 
-// the lobby only clears when the worker's first event lands, so the button has to
-// stay down until then: a second start_session throws "Session has already started"
+// stays down until the worker's first event: a second start_session throws "Session has already started"
 async function start() {
 	starting.value = true;
 	if (!(await hostCall("trivia_tap.api.start_session"))) starting.value = false;
 }
 const next = () => hostCall("trivia_tap.api.next_question");
 
-// With auto-advance off the host drives every beat, often from the back of the room with
-// a clicker, and a clicker sends arrow keys. Back is a look at screens the room already
-// saw, held on the projector only: the game itself never rewinds.
+// a presentation clicker sends arrow keys; back only reviews past screens, the game never rewinds
 const FORWARD_KEYS = ["ArrowRight", "ArrowDown", "PageDown"];
 const BACK_KEYS = ["ArrowLeft", "ArrowUp", "PageUp"];
 const REVIEW_PHASES = ["closed", "explanation", "scoreboard", "podium"];
 
-// Everything the review screens paint. Frames are shallow copies because every handler
-// replaces these values rather than mutating them.
+// frames are shallow copies: every handler replaces these values rather than mutating them
 const frameRefs = {
 	phase,
 	question,
@@ -854,8 +833,7 @@ const writeFrame = (frame) =>
 
 const pushFrame = (frame) => history.value.push(frame || readFrame());
 
-// Walk the remembered screens. The last frame is the live one, so sitting on it is not
-// review at all: reviewAt goes back to null and the game controls come back.
+// the last frame is the live one, so sitting on it ends the review
 function step(delta) {
 	const at = reviewAt.value ?? history.value.length - 1;
 	const target = at + delta;
@@ -867,7 +845,6 @@ function step(delta) {
 	return true;
 }
 
-// The room is moving on: whatever the host was looking back at, the live screen wins.
 function leaveReview() {
 	if (reviewAt.value === null) return;
 	reviewAt.value = null;
@@ -884,8 +861,7 @@ function onKeydown(event) {
 		step(-1);
 	} else if (FORWARD_KEYS.includes(event.key)) {
 		event.preventDefault();
-		// forward off the newest screen is the game moving on, and past the podium there is
-		// nothing left to move on to
+		// past the podium there is nothing left to move on to
 		if (!step(1) && phase.value !== "podium") next();
 	}
 }

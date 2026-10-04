@@ -1,10 +1,4 @@
-"""Nickname profanity check.
-
-ponytail: small curated wordlist with leetspeak folding, matched as a substring.
-Substring matching has the Scunthorpe problem (a clean name containing a dirty
-run gets rejected); acceptable for 20-character game nicknames. Swap in a real
-library if false positives ever get reported.
-"""
+"""Substring matching has the Scunthorpe problem; swap in a library if false positives get reported."""
 
 import re
 

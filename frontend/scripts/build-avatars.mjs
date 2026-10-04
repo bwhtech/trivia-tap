@@ -1,5 +1,4 @@
-// Renders every dicebear-kind avatar pack to static SVG, so the runtime never
-// loads a dicebear library and a bought "static" pack drops in the same shape.
+// Pre-rendered so the runtime never loads dicebear and a bought "static" pack drops in the same shape.
 // Run: yarn build:avatars
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -25,8 +24,7 @@ for (const file of await readdir(packsDir)) {
   await mkdir(outDir, { recursive: true });
 
   for (const id of pack.avatars) {
-    // Framing is the pack's business: notionists draws half-body portraits,
-    // which read as a cropped torso until zoomed onto the face.
+    // notionists draws half-body portraits, which read as a cropped torso unless zoomed onto the face
     const svg = createAvatar(style, {
       seed: id,
       radius: 50,

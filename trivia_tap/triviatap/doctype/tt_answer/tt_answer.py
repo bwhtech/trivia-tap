@@ -22,5 +22,5 @@ class TTAnswer(Document):
 
 
 def on_doctype_update():
-	# Duplicate submits die at the DB level regardless of race conditions
+	# the redis pre-check can race; this cannot
 	frappe.db.add_unique("TT Answer", ["participant", "question_row"])

@@ -250,7 +250,6 @@ const FINISH = {
 		call("trivia_tap.auth.login_with_code", { email: email.value, code: code.value }),
 };
 
-// one way out of every screen, under the main button
 const secondary = computed(() => {
 	if (codeSent.value)
 		return { label: "Use a different email", go: () => (codeSent.value = false) };

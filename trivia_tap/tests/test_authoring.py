@@ -26,8 +26,7 @@ def quiz_doc(questions, base=None) -> dict:
 
 
 class TestQuizAuthoring(IntegrationTestCase):
-	"""The editor saves through frappe.client.*, so these cover what TriviaTap adds to that path:
-	the controller's content rules, the question count, and the image on the payload."""
+	"""The editor saves through frappe.client.*, so these cover only what TriviaTap adds."""
 
 	def setUp(self):
 		frappe.set_user("Administrator")

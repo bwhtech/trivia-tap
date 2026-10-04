@@ -14,8 +14,7 @@ add_to_apps_screen = [
 	}
 ]
 
-# Send non-GET requests for this app's endpoints as native `application/json`
-# bodies instead of form-encoded, per-key JSON-stringified values.
+# native JSON bodies instead of form-encoded, per-key JSON-stringified values
 use_json_request_body = True
 
 after_install = "trivia_tap.patches.brand_site.execute"

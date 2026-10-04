@@ -1,9 +1,4 @@
-"""Curated words for the join-screen nickname suggestions.
-
-The list lives here rather than in the SPA so the profanity test can prove the
-whole cross product is clean: the filter matches substrings, so two harmless
-words can still form a blocked one across the join.
-"""
+"""Server-side so the profanity test can prove every adjective and noun pair is clean."""
 
 ADJECTIVES = (
 	"Swift",

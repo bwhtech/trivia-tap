@@ -8,7 +8,6 @@ export function initSocket() {
 	const protocol = port ? "http" : "https";
 	const url = `${protocol}://${host}${port}/${siteName}`;
 
-	// No attempt cap: giving up strands the screen on the 20s resync watchdog for the
-	// rest of the game, and a quiz outlives most network blips.
+	// no attempt cap: giving up strands the screen on the 20s resync watchdog for the rest of the game
 	return io(url, { withCredentials: true });
 }
