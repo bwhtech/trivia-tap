@@ -54,7 +54,7 @@
 				@submit.prevent="saveName"
 			>
 				<h2 class="font-display text-xl font-bold text-paper">Your name</h2>
-				<p class="-mt-2 text-sm text-paper/50">Shown in the menu and on your quizzes.</p>
+				<p class="-mt-2 text-sm text-paper/50">Shown in your account menu.</p>
 				<div class="grid gap-4 sm:grid-cols-2">
 					<label class="flex flex-col gap-2">
 						<span
