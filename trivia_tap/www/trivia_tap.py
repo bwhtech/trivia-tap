@@ -1,5 +1,6 @@
 import frappe
 
+from trivia_tap.auth import google_login_enabled
 from trivia_tap.avatars import get_boot_pack
 from trivia_tap.nicknames import get_boot_words
 
@@ -15,4 +16,5 @@ def get_context(context):
 		"user_image": user.user_image,
 		"avatar_pack": get_boot_pack(),
 		"nickname_words": get_boot_words(),
+		"google_login": google_login_enabled(),
 	}

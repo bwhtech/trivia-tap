@@ -1,5 +1,25 @@
 # Progress
 
+## Phase 25: Continue with Google (2026-10-04)
+
+Spec: `specs/phase-25-google-login.md`.
+
+### Done
+
+- `trivia_tap.auth.login_with_google` redirects to frappe's Google authorize URL. The landing page stays inside the SPA. Frappe's `login_via_google` does the rest: verified email check, create or link the user, log in.
+- Boot flag `google_login` shows "Continue with Google" on the log in and sign up screens only when the `google` Social Login Key is enabled.
+- `brand_site` patch (rerun as `#2`) sets Portal Settings default role to Quiz Host, so a Google sign up lands as a host (System User).
+- Setup steps in README.
+
+### Exit criteria verified
+
+Tests cover the redirect, the off-site guard, the not-set-up error and a Google sign up getting Quiz Host. Headless browser at 390px: button and "or with email" divider render; clicking it reaches accounts.google.com with the right client ID and redirect URI.
+
+### Notes
+
+- Google rejects plain `http` redirect URIs on any host but `localhost`, so `http://trivia-tap.localhost:8000` cannot finish the flow. Local testing needs the site as bench default and `http://localhost:8000`, or an https tunnel.
+- A real Google account round trip is not verified yet: it needs a real client ID.
+
 ## Phase 24: Join screen polish (2026-10-04)
 
 Spec: `specs/phase-24-join-polish.md`.

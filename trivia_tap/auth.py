@@ -6,6 +6,7 @@ from frappe.core.doctype.user.user import get_signup_limit, update_password
 from frappe.rate_limiter import rate_limit
 from frappe.twofactor import should_run_2fa
 from frappe.utils import cint, escape_html, get_url, validate_email_address
+from frappe.utils.oauth import get_oauth2_authorize_url
 from frappe.website.utils import is_signup_disabled
 
 from trivia_tap.email_code import SUBJECTS, EmailCode, send_mail
@@ -88,6 +89,20 @@ def login_with_code(email: str, code: str) -> None:
 	frappe.local.login_manager.login_as(user)
 
 
+# frappe's login_via_google callback verifies the email, creates or links the user
+# and logs them in; this only starts the flow and keeps the landing page inside the SPA
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@frappe.whitelist(allow_guest=True, methods=["GET"])
+@rate_limit(limit=20, seconds=10 * 60)
+def login_with_google(redirect_to: str = "/host") -> None:
+	if not google_login_enabled():
+		frappe.throw(_("Google login is not set up on this site."))
+	if not redirect_to.startswith("/") or redirect_to.startswith("//"):
+		redirect_to = "/host"
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = get_oauth2_authorize_url("google", f"/trivia-tap{redirect_to}")
+
+
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=10, seconds=10 * 60)
 def change_password(old_password: str, new_password: str) -> None:
@@ -142,6 +157,11 @@ def check_signup_open() -> None:
 		frappe.throw(_("Sign up is disabled on this site."), frappe.PermissionError)
 	if signups_past_hour_exceeded():
 		frappe.throw(_("Too many sign ups right now. Try again in an hour."), frappe.RateLimitExceededError)
+
+
+# frappe refuses to enable a key without a client ID and secret
+def google_login_enabled() -> bool:
+	return bool(frappe.db.get_value("Social Login Key", "google", "enable_social_login"))
 
 
 def active_user(email: str) -> str | None:
