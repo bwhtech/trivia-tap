@@ -36,7 +36,7 @@
 						class="flex flex-col-reverse justify-end gap-2 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
 					>
 						<dt
-							class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+							class="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45"
 						>
 							{{ stat.label }}
 						</dt>
