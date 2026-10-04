@@ -31,6 +31,7 @@ declare module 'vue' {
     LucidePlay: typeof import('~icons/lucide/play')['default']
     LucidePlus: typeof import('~icons/lucide/plus')['default']
     LucideSettings: typeof import('~icons/lucide/settings')['default']
+    LucideShuffle: typeof import('~icons/lucide/shuffle')['default']
     LucideTrash2: typeof import('~icons/lucide/trash2')['default']
     LucideUser: typeof import('~icons/lucide/user')['default']
     PasswordInput: typeof import('./src/components/PasswordInput.vue')['default']
