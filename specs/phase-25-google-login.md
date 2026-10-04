@@ -42,7 +42,7 @@ Login page -> GET trivia_tap.auth.login_with_google?redirect_to=/host
 2. Authorized redirect URI:
    `<site url>/api/method/frappe.integrations.oauth2_logins.login_via_google`.
 3. Desk > Social Login Key > New > Social Login Provider: Google. Paste the
-   client ID and secret, tick Enable Social Login. Sign ups: Allow.
+   client ID and secret, tick Enable Social Login. Leave Sign ups blank: "Allow" would let Google sign ups through even when Website Settings disables sign up.
 
 Google refuses a plain `http` redirect URI unless the host is `localhost`, so
 `http://trivia-tap.localhost:8000` fails with "doesn't comply with Google's

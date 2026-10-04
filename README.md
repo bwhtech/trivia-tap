@@ -103,7 +103,7 @@ Hosts can sign up and log in with Google once the site has a Google key.
 2. Add this authorized redirect URI:
    `<site url>/api/method/frappe.integrations.oauth2_logins.login_via_google`
 3. In Desk, open Social Login Key, add a new one with provider Google, paste
-   the client ID and secret, tick Enable Social Login and set Sign ups to Allow.
+   the client ID and secret, tick Enable Social Login and leave Sign ups blank so it follows the site sign up setting.
 
 Google only accepts plain `http` for `localhost`, not `your-site.localhost`. To
 try it locally, run `bench use your-site.localhost`, open
