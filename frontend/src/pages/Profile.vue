@@ -193,7 +193,11 @@
 							{{ passwordNote }}
 						</p>
 						<button type="button" class="ctl" @click="cancelPassword">Cancel</button>
-						<button class="ctl ctl-go" :disabled="savingPassword">
+						<button
+							class="ctl"
+							:class="{ 'ctl-go': passwordFilled }"
+							:disabled="savingPassword || !passwordFilled"
+						>
 							{{ savingPassword ? "Changing…" : "Change password" }}
 						</button>
 					</div>
@@ -240,6 +244,9 @@ const nameFailed = ref(false);
 const oldPassword = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
+const passwordFilled = computed(
+	() => oldPassword.value && newPassword.value && confirmPassword.value
+);
 const savingPassword = ref(false);
 const passwordChanged = route.query.password === "changed";
 const passwordNote = ref(passwordChanged ? "Password changed." : "");
