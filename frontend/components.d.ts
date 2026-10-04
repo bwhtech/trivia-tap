@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AnimatedQr: typeof import('./src/components/AnimatedQr.vue')['default']
     AnswerGrid: typeof import('./src/components/AnswerGrid.vue')['default']
     AvatarPic: typeof import('./src/components/AvatarPic.vue')['default']
     CodeStep: typeof import('./src/components/CodeStep.vue')['default']

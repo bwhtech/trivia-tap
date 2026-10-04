@@ -1,5 +1,21 @@
 # Progress
 
+## Phase 20: Animated join QR (2026-10-04)
+
+Spec: `specs/phase-20-animated-qr.md`.
+
+### Done
+
+- `AnimatedQr.vue`: a 2D canvas where every dark QR module is a dot. The dots pop in as the mascot outline (dark pixels of the logo), hold with a small bob, then arc into their module and settle to ink. The logo badge lands last.
+- Lobby code and fullscreen code both use it. `renderQr` and the data URL are gone from `Host.vue`.
+- Living badge: `scripts/build_mascot.py` cuts the logo into background, head, eyes and sparks (connected components of the dark ink, background refitted as a smooth gradient) and writes `trivia-tap-mascot.svg` with CSS keyframes: head bob, glance, blink, spark flash. Reduced motion stops it. The SVG lives in `frontend/src/assets` so Vite hashes its URL: Frappe sends `max-age=43200` for `/assets`, and at a fixed URL a browser kept showing an older mascot for hours.
+- The light box around the badge has rounded corners, concentric with the tile (tile radius plus padding, 28.5%). The modules run under it, so no square hole shows at the corners.
+- Fullscreen code: `rounded-3xl` is not in the frappe-ui radius scale and rendered square, now `rounded-2xl`. The dialog no longer draws a focus outline around itself.
+
+### Exit criteria verified
+
+Headless browser on a live lobby: mascot frame, flight, settled frame, then the badge keeps moving. Settled frames decode to the join URL (OpenCV and zxing-cpp before the live badge, zxing-cpp after).
+
 ## Phase 19: Email codes for sign up, reset and log in (2026-10-02)
 
 Spec: `specs/phase-19-email-code-auth.md`.
