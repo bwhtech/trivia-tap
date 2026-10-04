@@ -17,7 +17,9 @@ Inspired by tree.icqr.com, where voxels of a tree fold into a QR.
   alive: the mascot bobs, glances, blinks and its sparks flash, on a loop.
 - The live badge is `trivia-tap-mascot.svg`, cut from the logo PNG into layers
   by `scripts/build_mascot.py` and animated with CSS inside the SVG, so any
-  `<img>` can show it. It sits over the canvas as an `<img>`, because a canvas
+  `<img>` can show it. Vite bundles it from `frontend/src/assets`, so its URL
+  carries a content hash: Frappe serves `/assets` with a 12 hour cache, and a
+  fixed URL kept old mascots on screen. It sits over the canvas as an `<img>`, because a canvas
   would freeze it.
 - The fullscreen code is the same component, so opening it plays the
   animation again at projector size.

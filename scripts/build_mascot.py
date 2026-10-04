@@ -14,7 +14,8 @@ from scipy import ndimage
 
 IMAGES = Path(__file__).resolve().parent.parent / "trivia_tap/public/images"
 SOURCE = IMAGES / "trivia-tap-logo.png"
-TARGET = IMAGES / "trivia-tap-mascot.svg"
+# bundled by Vite, so the URL carries a content hash and a new mascot is never served stale
+TARGET = Path(__file__).resolve().parent.parent / "frontend/src/assets/trivia-tap-mascot.svg"
 
 STYLE = """
 .part { transform-box: fill-box; transform-origin: center; }
