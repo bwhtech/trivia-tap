@@ -192,6 +192,17 @@ body {
 	border-color: rgb(var(--paper) / 0.4);
 }
 
+/* the native spinner arrows render light-themed and crowd a short number box */
+.field[type='number'] {
+	appearance: textfield;
+}
+
+.field[type='number']::-webkit-inner-spin-button,
+.field[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
 .field:focus {
 	outline: none;
 	border-color: rgb(var(--accent));

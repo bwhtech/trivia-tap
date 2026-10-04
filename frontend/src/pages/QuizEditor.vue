@@ -1,6 +1,6 @@
 <template>
 	<div class="flex h-full flex-col bg-night">
-		<HostBar />
+		<HostBar :show-new-quiz="false" />
 		<header class="flex items-center gap-2 border-b border-haze px-3 py-2.5 sm:gap-3 sm:px-5">
 			<input
 				ref="titleInput"
