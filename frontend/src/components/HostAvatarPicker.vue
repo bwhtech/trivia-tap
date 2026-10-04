@@ -5,11 +5,11 @@
 		aria-label="Change profile picture"
 		@click="open"
 	>
-		<HostAvatar class="size-16 text-3xl" />
+		<HostAvatar class="size-20 text-4xl sm:size-24 sm:text-5xl" />
 		<span
-			class="absolute inset-0 flex items-center justify-center rounded-full bg-sunk/55 text-card opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"
+			class="absolute bottom-0 right-0 flex size-7 items-center justify-center rounded-full border-2 border-night bg-paper text-night transition group-hover:scale-110"
 		>
-			<LucidePencil class="size-5" />
+			<LucidePencil class="size-3.5" />
 		</span>
 		<span
 			role="tooltip"

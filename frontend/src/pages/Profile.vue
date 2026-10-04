@@ -1,41 +1,66 @@
 <template>
 	<div class="flex h-full flex-col overflow-y-auto bg-night">
 		<HostBar />
-		<div class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 p-5 pb-20 sm:p-8 sm:pb-20">
-			<div class="flex flex-col gap-5 rounded-2xl border border-haze bg-dusk p-4 sm:p-5">
-				<div class="flex items-center gap-4">
+		<div
+			class="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-10 p-5 pb-20 sm:p-8 sm:pb-20"
+		>
+			<header class="flex flex-col gap-8">
+				<div class="flex items-center gap-5 sm:gap-6">
 					<HostAvatarPicker />
 					<div class="min-w-0">
+						<p
+							class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.28em] text-accent"
+						>
+							<svg class="h-3 w-3 fill-accent" viewBox="0 0 24 24">
+								<path :d="SHAPES[1].path" />
+							</svg>
+							Host
+						</p>
 						<h1
-							class="truncate font-display text-2xl font-extrabold text-paper sm:text-3xl"
+							class="mt-2 truncate font-display text-3xl font-extrabold text-paper sm:text-5xl"
 						>
 							{{ fullName }}
 						</h1>
-						<p class="truncate font-mono text-xs text-paper/50">{{ user }}</p>
+						<p
+							v-if="user !== fullName"
+							class="mt-1 truncate font-mono text-sm text-paper/50"
+						>
+							{{ user }}
+						</p>
 					</div>
 				</div>
-				<dl v-if="stats" class="grid grid-cols-3 gap-4 border-t border-haze pt-4">
+				<dl class="grid grid-cols-3 gap-3 sm:gap-4">
 					<div
 						v-for="stat in STATS"
 						:key="stat.key"
-						class="flex flex-col-reverse justify-end gap-1"
+						class="flex flex-col-reverse justify-end gap-2 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
 					>
-						<dt class="font-mono text-[11px] text-paper/50">{{ stat.label }}</dt>
-						<dd class="font-display text-3xl font-extrabold text-paper">
-							{{ stats[stat.key].toLocaleString() }}
+						<dt
+							class="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45"
+						>
+							{{ stat.label }}
+						</dt>
+						<dd
+							class="font-display text-3xl font-extrabold tabular-nums text-paper sm:text-4xl"
+						>
+							{{ stats ? stats[stat.key].toLocaleString() : "–" }}
 						</dd>
 					</div>
 				</dl>
-			</div>
+			</header>
 
 			<form
-				class="flex flex-col gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
+				class="flex flex-col gap-5 rounded-2xl border border-haze bg-dusk p-5 sm:p-6"
 				@submit.prevent="saveName"
 			>
-				<h2 class="font-display text-xl font-bold text-paper">Name</h2>
+				<h2 class="font-display text-xl font-bold text-paper">Your name</h2>
+				<p class="-mt-2 text-sm text-paper/50">Shown in the menu and on your quizzes.</p>
 				<div class="grid gap-4 sm:grid-cols-2">
 					<label class="flex flex-col gap-2">
-						<span class="font-mono text-xs text-paper/50">First name</span>
+						<span
+							class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+							>First name</span
+						>
 						<input
 							v-model="firstName"
 							class="field"
@@ -44,81 +69,125 @@
 						/>
 					</label>
 					<label class="flex flex-col gap-2">
-						<span class="font-mono text-xs text-paper/50">Last name</span>
+						<span
+							class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+							>Last name</span
+						>
 						<input v-model="lastName" class="field" autocomplete="family-name" />
 					</label>
 				</div>
-				<div class="flex items-center gap-4">
-					<button class="ctl ctl-go" :disabled="savingName || !nameChanged">
-						{{ savingName ? "Saving…" : "Save name" }}
-					</button>
+				<div class="flex items-center justify-end gap-4">
 					<p
 						v-if="nameNote"
 						class="text-sm"
 						:class="nameFailed ? 'text-alert' : 'text-ok'"
+						aria-live="polite"
 					>
 						{{ nameNote }}
 					</p>
+					<button
+						class="ctl"
+						:class="{ 'ctl-go': nameChanged }"
+						:disabled="savingName || !nameChanged"
+					>
+						{{ savingName ? "Saving…" : "Save" }}
+					</button>
 				</div>
 			</form>
 
 			<form
-				class="flex flex-col gap-4 rounded-2xl border border-haze bg-dusk p-4 sm:p-5"
+				class="flex flex-col gap-5 rounded-2xl border border-haze bg-dusk p-5 sm:p-6"
 				@submit.prevent="changePassword"
 			>
-				<h2 class="font-display text-xl font-bold text-paper">Password</h2>
-				<!-- lets password managers tie the new password to this account -->
-				<input :value="user" autocomplete="username" hidden />
-				<div class="flex flex-col gap-2">
-					<label class="font-mono text-xs text-paper/50" for="current-password"
-						>Current password</label
+				<div class="flex items-center justify-between gap-4">
+					<div>
+						<h2 class="font-display text-xl font-bold text-paper">Password</h2>
+						<p class="mt-2 text-sm text-paper/50">
+							{{
+								editingPassword
+									? "Pick something only you know."
+									: "Log in with your email and this password."
+							}}
+						</p>
+					</div>
+					<button
+						v-if="!editingPassword"
+						type="button"
+						class="ctl shrink-0"
+						@click="editingPassword = true"
 					>
-					<PasswordInput
-						id="current-password"
-						v-model="oldPassword"
-						class="field"
-						autocomplete="current-password"
-						required
-					/>
-				</div>
-				<div class="grid gap-4 sm:grid-cols-2">
-					<div class="flex flex-col gap-2">
-						<label class="font-mono text-xs text-paper/50" for="new-password"
-							>New password</label
-						>
-						<PasswordInput
-							id="new-password"
-							v-model="newPassword"
-							class="field"
-							autocomplete="new-password"
-							required
-						/>
-					</div>
-					<div class="flex flex-col gap-2">
-						<label class="font-mono text-xs text-paper/50" for="confirm-new-password"
-							>Confirm new password</label
-						>
-						<PasswordInput
-							id="confirm-new-password"
-							v-model="confirmPassword"
-							class="field"
-							autocomplete="new-password"
-							required
-						/>
-					</div>
-				</div>
-				<div class="flex items-center gap-4">
-					<button class="ctl ctl-go" :disabled="savingPassword">
-						{{ savingPassword ? "Changing…" : "Change password" }}
+						Change
 					</button>
-					<p
-						v-if="passwordNote"
-						class="text-sm"
-						:class="passwordFailed ? 'text-alert' : 'text-ok'"
-					>
-						{{ passwordNote }}
-					</p>
 				</div>
+				<p
+					v-if="passwordNote && !editingPassword"
+					class="-mt-2 text-sm"
+					:class="passwordFailed ? 'text-alert' : 'text-ok'"
+				>
+					{{ passwordNote }}
+				</p>
+				<template v-if="editingPassword">
+					<!-- lets password managers tie the new password to this account -->
+					<input :value="user" autocomplete="username" hidden />
+					<div class="flex flex-col gap-2">
+						<label
+							class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+							for="current-password"
+							>Current password</label
+						>
+						<PasswordInput
+							id="current-password"
+							v-model="oldPassword"
+							class="field"
+							autocomplete="current-password"
+							required
+						/>
+					</div>
+					<div class="grid gap-4 sm:grid-cols-2">
+						<div class="flex flex-col gap-2">
+							<label
+								class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+								for="new-password"
+								>New password</label
+							>
+							<PasswordInput
+								id="new-password"
+								v-model="newPassword"
+								class="field"
+								autocomplete="new-password"
+								required
+							/>
+						</div>
+						<div class="flex flex-col gap-2">
+							<label
+								class="font-mono text-[11px] uppercase tracking-[0.22em] text-paper/45"
+								for="confirm-new-password"
+								>Confirm new password</label
+							>
+							<PasswordInput
+								id="confirm-new-password"
+								v-model="confirmPassword"
+								class="field"
+								autocomplete="new-password"
+								required
+							/>
+						</div>
+					</div>
+					<div class="flex items-center justify-end gap-3">
+						<p
+							v-if="passwordNote"
+							class="mr-auto text-sm"
+							:class="passwordFailed ? 'text-alert' : 'text-ok'"
+							aria-live="polite"
+						>
+							{{ passwordNote }}
+						</p>
+						<button type="button" class="ctl" @click="cancelPassword">Cancel</button>
+						<button class="ctl ctl-go" :disabled="savingPassword">
+							{{ savingPassword ? "Changing…" : "Change password" }}
+						</button>
+					</div>
+				</template>
 			</form>
 		</div>
 	</div>
@@ -128,6 +197,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { call, errorText } from "@/api";
+import { SHAPES } from "@/game";
 import { firstName as greetedName } from "@/host";
 import HostAvatarPicker from "@/components/HostAvatarPicker.vue";
 import HostBar from "@/components/HostBar.vue";
@@ -135,8 +205,8 @@ import PasswordInput from "@/components/PasswordInput.vue";
 
 const STATS = [
 	{ key: "games_hosted", label: "Games hosted" },
-	{ key: "players_reached", label: "Players reached" },
-	{ key: "quizzes_written", label: "Quizzes written" },
+	{ key: "players_reached", label: "Players joined" },
+	{ key: "quizzes_written", label: "Quizzes created" },
 ];
 
 const route = useRoute();
@@ -164,6 +234,7 @@ const savingPassword = ref(false);
 const passwordChanged = route.query.password === "changed";
 const passwordNote = ref(passwordChanged ? "Password changed." : "");
 const passwordFailed = ref(false);
+const editingPassword = ref(false);
 
 onMounted(async () => {
 	if (passwordChanged) router.replace({ query: {} });
@@ -209,6 +280,12 @@ async function changePassword() {
 		showPasswordNote(errorText(e), true);
 		savingPassword.value = false;
 	}
+}
+
+function cancelPassword() {
+	editingPassword.value = false;
+	oldPassword.value = newPassword.value = confirmPassword.value = "";
+	passwordNote.value = "";
 }
 
 function showNameNote(text, failed) {
