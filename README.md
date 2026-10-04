@@ -4,7 +4,7 @@
 
 **Live multiplayer quiz, no login required**
 
-<img alt="Host lobby with the game PIN, QR code and players joining" src="docs/images/host-lobby.png" />
+<img alt="Host lobby: players join one by one, then the QR code is clicked to fill the screen" src="docs/images/host-lobby.gif" />
 
 </div>
 
@@ -24,7 +24,11 @@ the game.
 
 **Joining from a phone**
 
-<img alt="Join screen with PIN, nickname suggestions and avatar picker" src="docs/images/player-join.png" width="320" />
+<img alt="Join screen with PIN boxes, nickname suggestions and avatar picker" src="docs/images/player-join.png" width="320" />
+
+**Picking a quiz**
+
+<img alt="Host quiz library with a Play button on every quiz" src="docs/images/host-quizzes.png" />
 
 **A question, live on both screens**
 
@@ -36,19 +40,23 @@ the game.
 
 <img alt="Correct answer revealed with the answer distribution" src="docs/images/host-stats.png" />
 
-<img alt="Scoreboard with the top five after the question" src="docs/images/host-leaderboard.png" />
+<img alt="Explanation shown to the room after the answer" src="docs/images/host-explanation.png" />
+
+<img alt="Scoreboard with the top five and answer streaks" src="docs/images/host-leaderboard.png" />
 
 **Final results**
 
 <img alt="Podium with the top three players and the full leaderboard" src="docs/images/host-podium.png" />
 
+<img alt="Player screen announcing the win with the final standings" src="docs/images/player-final.png" width="320" />
+
 **Writing a quiz**
 
-<img alt="Quiz editor with question text, four options and the correct answer marked" src="docs/images/quiz-editor.png" />
+<img alt="Quiz editor with question list, four options, the correct answer marked and an explanation" src="docs/images/quiz-editor.png" />
 
 **Light and dark**
 
-<img alt="Player question screen in dark theme" src="docs/images/theme.png" width="320" />
+<img alt="Player question screen in light theme" src="docs/images/player-light.png" width="320" />
 
 </details>
 
@@ -59,10 +67,12 @@ the game.
 - Questions land on every device at once, with a per-question timer
 - Speed-scaled scoring with streak bonuses, in the style of the games it borrows from
 - Answer distribution, correct answer reveal and top-five leaderboard between questions
+- Optional explanation per question, shown to the room before or after the results
 - Top-three podium at the end, plus the full ranking
 - Avatar picker and nickname suggestions for players
 - Light and dark theme, everywhere
 - Quizzes are written in the app, no Desk trip needed
+- Hosts sign up with email or Google
 
 ## Under the hood
 
