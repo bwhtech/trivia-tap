@@ -1,6 +1,8 @@
 <div align="center">
 
-# <img alt="" src="frontend/src/assets/trivia-tap-mascot.svg" width="44" height="44" align="center" /> TriviaTap
+<img alt="" src="frontend/src/assets/trivia-tap-mascot.svg" width="96" height="96" />
+
+# TriviaTap
 
 **Live multiplayer quiz, no login required**
 
