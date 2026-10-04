@@ -205,8 +205,8 @@ import PasswordInput from "@/components/PasswordInput.vue";
 
 const STATS = [
 	{ key: "games_hosted", label: "Games hosted" },
-	{ key: "players_reached", label: "Players reached" },
-	{ key: "quizzes_written", label: "Quizzes written" },
+	{ key: "players_reached", label: "Players joined" },
+	{ key: "quizzes_written", label: "Quizzes created" },
 ];
 
 const route = useRoute();

@@ -32,8 +32,8 @@ The header card shows three numbers:
 
 - **Games hosted**: the host's `TT Session` rows with status Ended. A lobby
   closed before the start is Cancelled and does not count.
-- **Players reached**: participants in those sessions, kicked players left out.
-- **Quizzes written**: `TT Quiz` rows the host owns.
+- **Players joined**: participants in those sessions, kicked players left out.
+- **Quizzes created**: `TT Quiz` rows the host owns.
 
 They come from one call, `trivia_tap.api.get_host_stats()`. It counts for
 `frappe.session.user` only and takes no argument, so there is nothing to scope.
