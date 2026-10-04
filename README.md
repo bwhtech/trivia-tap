@@ -12,14 +12,19 @@
 
 ## What it is
 
-TriviaTap is a live quiz game built on the Frappe Framework. A host puts the game
-PIN on the big screen, players join from their phones with the PIN or by
-scanning the QR code, and nobody needs an account.
+TriviaTap is a live quiz game for a room full of people, built on the Frappe
+Framework. The host puts a game PIN and QR code on the big screen. Players
+join from their phones in a few seconds. Nobody signs up or installs anything.
 
-Gameplay is server-authoritative. The correct answer never reaches a player's
-device before the question closes, scores are computed from a server-set
-deadline, and every submission is validated against the server's own view of
-the game.
+Each question runs on a countdown. Faster correct answers score more points,
+and a streak of correct answers adds a bonus. After each question the room
+sees the answer split, an explanation and the leaderboard.
+
+The server runs the game, so players can't cheat from their phones:
+
+- The correct answer never reaches a phone until the question closes.
+- The server sets the deadline, so a slow or tampered clock gains nothing.
+- The server checks every answer against its own state of the game.
 
 <details>
 <summary>Screenshots</summary>
