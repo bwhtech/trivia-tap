@@ -109,7 +109,7 @@
 			</div>
 
 			<p v-else class="m-auto text-paper/50">
-				Nothing to preview yet. Write a question first.
+				Nothing on stage yet. Write a question and it shows up here.
 			</p>
 
 			<footer

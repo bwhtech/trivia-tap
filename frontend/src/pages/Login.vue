@@ -161,25 +161,25 @@ const TABS = [
 const FLOWS = {
 	login: {
 		tab: "login",
-		blurb: "Log in to write quizzes and host a game.",
+		blurb: "Welcome back! Make a quiz and start a game.",
 		finish: "Log in",
 	},
 	signup: {
 		tab: "signup",
 		purpose: "sign_up",
-		blurb: "Make an account, write a quiz, and share the link.",
+		blurb: "Write the questions, then watch a room full of phones race to answer them.",
 		finish: "Create account",
 	},
 	forgot: {
 		tab: "login",
 		purpose: "reset_password",
-		blurb: "We'll email you a code to set a new password.",
+		blurb: "Happens to the best of us. We'll email you a code to set a new one.",
 		finish: "Set password and log in",
 	},
 	code_login: {
 		tab: "login",
 		purpose: "log_in",
-		blurb: "We'll email you a code to log in.",
+		blurb: "Skip the password. We'll email you a code.",
 		finish: "Log in",
 	},
 };

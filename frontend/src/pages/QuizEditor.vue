@@ -72,7 +72,7 @@
 			</main>
 			<main v-else class="grid flex-1 place-items-center p-8 text-center">
 				<div class="flex flex-col items-center gap-4">
-					<p class="text-paper/50">No questions yet.</p>
+					<p class="text-paper/50">A quiz with no questions is just a title.</p>
 					<button class="ctl ctl-go gap-1.5" @click="add">
 						<LucidePlus class="size-4" />
 						Add question
