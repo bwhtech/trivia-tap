@@ -44,6 +44,8 @@ const badgeStyle = computed(() => ({
 	width: `${BADGE_SHARE * 124}%`,
 	padding: `${BADGE_SHARE * 12}%`,
 	background: PAPER,
+	// the tile's corner radius plus the padding, so both corners share a centre
+	borderRadius: "28.5%",
 	transform: `translate(-50%, -50%) scale(${badgeShown.value ? 1 : 0.4})`,
 }));
 
@@ -73,15 +75,12 @@ function planDots(url, size, logo) {
 	const { modules } = QRCode.create(url, { errorCorrectionLevel: "H" });
 	const cell = size / (modules.size + 2);
 	const centre = size / 2;
-	const badgeHalf = (size * BADGE_SHARE * 1.24) / 2;
 	const targets = [];
 	for (let row = 0; row < modules.size; row++) {
 		for (let column = 0; column < modules.size; column++) {
 			const x = (column + 1.5) * cell;
 			const y = (row + 1.5) * cell;
-			const underBadge =
-				logo && Math.abs(x - centre) < badgeHalf && Math.abs(y - centre) < badgeHalf;
-			if (modules.get(row, column) && !underBadge) targets.push({ x, y });
+			if (modules.get(row, column)) targets.push({ x, y });
 		}
 	}
 	const sources = logo ? mascotOutline(logo, size) : targets;

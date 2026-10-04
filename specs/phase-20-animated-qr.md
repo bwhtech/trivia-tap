@@ -23,7 +23,9 @@ Inspired by tree.icqr.com, where voxels of a tree fold into a QR.
   animation again at projector size.
 - `prefers-reduced-motion: reduce` draws the finished QR at once.
 - The final frame matches `renderQr`: error level H, margin 1, same colours, a
-  20% logo badge. It must scan.
+  20% logo badge. The light box around the badge is rounded to match the
+  tile's corners, and the modules run under it instead of stopping at a
+  square hole. It must scan.
 
 ## Out of scope
 

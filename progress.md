@@ -9,6 +9,7 @@ Spec: `specs/phase-20-animated-qr.md`.
 - `AnimatedQr.vue`: a 2D canvas where every dark QR module is a dot. The dots pop in as the mascot outline (dark pixels of the logo), hold with a small bob, then arc into their module and settle to ink. The logo badge lands last.
 - Lobby code and fullscreen code both use it. `renderQr` and the data URL are gone from `Host.vue`.
 - Living badge: `scripts/build_mascot.py` cuts the logo into background, head, eyes and sparks (connected components of the dark ink, background refitted as a smooth gradient) and writes `trivia-tap-mascot.svg` with CSS keyframes: head bob, glance, blink, spark flash. Reduced motion stops it.
+- The light box around the badge has rounded corners, concentric with the tile (tile radius plus padding, 28.5%). The modules run under it, so no square hole shows at the corners.
 - Fullscreen code: `rounded-3xl` is not in the frappe-ui radius scale and rendered square, now `rounded-2xl`. The dialog no longer draws a focus outline around itself.
 
 ### Exit criteria verified
