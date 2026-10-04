@@ -5,7 +5,7 @@
 			<input
 				ref="titleInput"
 				v-model="title"
-				class="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 font-display text-xl font-extrabold text-paper transition placeholder:text-paper/30 hover:border-haze focus:border-haze focus:outline-none sm:text-2xl"
+				class="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1.5 font-display text-xl font-extrabold text-paper transition placeholder:text-paper/30 hover:border-haze focus:border-haze focus:outline-none focus:ring-0 sm:text-2xl"
 				placeholder="Untitled quiz"
 				aria-label="Quiz title"
 			/>

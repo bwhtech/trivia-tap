@@ -27,7 +27,7 @@
 				</svg>
 				<input
 					v-model="question[`option_${shape.id}`]"
-					class="min-w-0 flex-1 border-0 bg-transparent font-display text-lg font-extrabold text-sunk placeholder:text-sunk/45 focus:outline-none sm:text-xl"
+					class="min-w-0 flex-1 border-0 bg-transparent font-display text-lg font-extrabold text-sunk placeholder:text-sunk/45 focus:outline-none focus:ring-0 sm:text-xl"
 					:placeholder="`Answer ${shape.id}`"
 					:aria-label="`Answer ${shape.id}`"
 				/>
