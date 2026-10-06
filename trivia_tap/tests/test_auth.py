@@ -2,7 +2,9 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 import frappe
+from frappe.email.email_body import get_formatted_html
 from frappe.tests import IntegrationTestCase
+from frappe.utils.jinja import get_email_from_template
 from frappe.utils.oauth import consume_oauth_state, update_oauth_user
 from frappe.utils.password import check_password
 
@@ -16,7 +18,7 @@ from trivia_tap.auth import (
 	send_reset_link,
 	sign_up,
 )
-from trivia_tap.email_code import MAX_TRIES
+from trivia_tap.email_code import MAX_TRIES, send_mail
 from trivia_tap.patches import brand_site
 
 EMAIL = "new.host@example.com"
@@ -303,3 +305,17 @@ class TestGoogleLogin(IntegrationTestCase):
 		self.assertIn("Quiz Host", frappe.get_roles(EMAIL))
 		self.assertEqual(user.user_type, "System User")
 		self.assertEqual(user.get_social_login_userid("google"), "google-123")
+
+
+class TestMail(IntegrationTestCase):
+	@patch("trivia_tap.email_code.frappe.sendmail")
+	def test_mail_carries_the_brand_and_support_address(self, sendmail):
+		send_mail(EMAIL, "Your TriviaTap log in code", "trivia_tap_code", {"code": "042917", "minutes": 10})
+
+		mail = sendmail.call_args.kwargs
+		self.assertEqual(mail["reply_to"], "developers@bwh.tech")
+		content = get_email_from_template(mail["template"], mail["args"])[0]
+		message = get_formatted_html(mail["subject"], content, wrapper=mail["wrapper"])
+		self.assertIn("042917", message)
+		self.assertIn("trivia-tap-logo.png", message)
+		self.assertIn("mailto:developers@bwh.tech", message)

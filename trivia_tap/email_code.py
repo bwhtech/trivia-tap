@@ -69,7 +69,7 @@ def send_mail(email: str, subject: str, template: str, args: dict) -> None:
 		subject=subject,
 		template=template,
 		args=args,
-		with_container=True,
-		wrapper="templates/emails/auth_email.html",
+		reply_to="developers@bwh.tech",
+		wrapper="templates/emails/trivia_tap_wrapper.html",
 		now=True,
 	)
