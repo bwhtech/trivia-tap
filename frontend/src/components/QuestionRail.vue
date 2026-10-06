@@ -71,7 +71,7 @@
 					</span>
 				</button>
 				<div
-					class="absolute -top-1 right-0 flex gap-0.5 opacity-0 transition focus-within:opacity-100 group-hover:opacity-100"
+					class="absolute -top-1 right-0 flex gap-0.5 opacity-0 transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
 				>
 					<button
 						class="rail-action"
@@ -140,7 +140,7 @@ function moveBy(index, step) {
 	height: 1.5rem;
 	border-radius: 999px;
 	color: rgb(var(--paper) / 0.5);
-	transition: 0.15s ease;
+	transition: color 150ms ease;
 }
 
 .rail-action:hover {

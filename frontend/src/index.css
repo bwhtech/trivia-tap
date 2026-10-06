@@ -1,4 +1,4 @@
-@import 'frappe-ui/style.css';
+@import "frappe-ui/style.css";
 
 /* RGB channels so Tailwind's opacity modifiers still work. */
 :root {
@@ -13,10 +13,12 @@
 	--on-alert: 10 16 14;
 	--accent: 32 238 160;
 	--ok: 23 176 190;
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Accents are re-derived, not inverted: each must read as small text on a light ground. */
-:root[data-theme='light'] {
+:root[data-theme="light"] {
 	color-scheme: light;
 	--night: 246 251 248;
 	--dusk: 232 244 238;
@@ -29,7 +31,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-	:root:not([data-theme='dark']) {
+	:root:not([data-theme="dark"]) {
 		color-scheme: light;
 		--night: 246 251 248;
 		--dusk: 232 244 238;
@@ -46,7 +48,7 @@ html,
 body {
 	background-color: rgb(var(--night));
 	color: rgb(var(--paper));
-	font-family: 'Instrument Sans', system-ui, sans-serif;
+	font-family: "Instrument Sans", system-ui, sans-serif;
 }
 
 /* Everything sits on the same ground, so one mint ring works everywhere. */
@@ -74,7 +76,7 @@ body {
 	);
 }
 
-.drain-ring[data-urgent='true'] {
+.drain-ring[data-urgent="true"] {
 	animation: drain-pulse 1s ease-in-out infinite;
 }
 
@@ -95,22 +97,31 @@ body {
 	font-size: 0.875rem;
 	line-height: 1.25rem;
 	color: rgb(var(--paper) / 0.7);
-	transition: 0.15s ease;
+	transition:
+		color 150ms ease,
+		border-color 150ms ease,
+		background-color 150ms ease,
+		filter 150ms ease,
+		transform 120ms var(--ease-out);
 }
 
-.ctl:hover:not(:disabled, [data-on='true']) {
+.ctl:active:not(:disabled) {
+	transform: scale(0.97);
+}
+
+.ctl:hover:not(:disabled, [data-on="true"]) {
 	border-color: rgb(var(--paper));
 	color: rgb(var(--paper));
 }
 
-.ctl[data-on='true'] {
+.ctl[data-on="true"] {
 	background: rgb(var(--paper));
 	border-color: rgb(var(--paper));
 	color: rgb(var(--night));
 	font-weight: 600;
 }
 
-.ctl[data-on='true']:hover:not(:disabled) {
+.ctl[data-on="true"]:hover:not(:disabled) {
 	filter: brightness(0.92);
 }
 
@@ -155,7 +166,7 @@ body {
 }
 
 .qz-dialog[open] {
-	animation: dialog-in 0.14s ease-out;
+	animation: dialog-in 200ms var(--ease-out);
 }
 
 @keyframes dialog-in {
@@ -184,12 +195,12 @@ body {
 }
 
 /* the native spinner arrows render light-themed and crowd a short number box */
-.field[type='number'] {
+.field[type="number"] {
 	appearance: textfield;
 }
 
-.field[type='number']::-webkit-inner-spin-button,
-.field[type='number']::-webkit-outer-spin-button {
+.field[type="number"]::-webkit-inner-spin-button,
+.field[type="number"]::-webkit-outer-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
@@ -201,13 +212,74 @@ body {
 }
 
 .podium-rise {
-	animation: podium-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+	animation: podium-rise 600ms var(--ease-out) both;
 }
 
+/* clip, not height: no layout per frame, and the rank number is not squashed */
 @keyframes podium-rise {
 	from {
-		height: 0;
+		clip-path: inset(100% 0 0 0);
 	}
+}
+
+.bar-grow {
+	transform-origin: bottom;
+	animation: bar-grow 400ms var(--ease-out) both;
+}
+
+@keyframes bar-grow {
+	from {
+		transform: scaleY(0);
+	}
+}
+
+.pop-in {
+	animation: pop-in 300ms var(--ease-pop) both;
+}
+
+@keyframes pop-in {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+}
+
+.phase-enter-active {
+	transition:
+		opacity 220ms var(--ease-out),
+		transform 220ms var(--ease-out);
+}
+
+.phase-leave-active {
+	transition: opacity 120ms ease;
+}
+
+.phase-enter-from {
+	opacity: 0;
+	transform: translateY(8px);
+}
+
+.phase-leave-to {
+	opacity: 0;
+}
+
+.chip-enter-active {
+	transition:
+		opacity 250ms var(--ease-out),
+		transform 250ms var(--ease-out);
+}
+
+.chip-leave-active {
+	transition: opacity 150ms ease;
+}
+
+.chip-enter-from {
+	opacity: 0;
+	transform: scale(0.95);
+}
+
+.chip-leave-to {
+	opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
