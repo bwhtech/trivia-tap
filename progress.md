@@ -4,13 +4,14 @@
 
 ### Done
 
-- `templates/emails/trivia_tap_wrapper.html`: TriviaTap wrapper for every auth mail. Dark masthead with logo, mint stripe, white card, brand green button, code in a dashed box, and a "Need help?" footer pointing to developers@bwh.tech.
+- `templates/emails/trivia_tap_wrapper.html`: TriviaTap wrapper for every auth mail, dark like the app. Near-black card with logo and name, white title, code centered in a mint gradient box, mint gradient pill button, and a "Need help?" footer pointing to developers@bwh.tech. Picked over a minimal light and a playful mascot design.
 - `send_mail` sets Reply-To to developers@bwh.tech, so a reply reaches support instead of noreply.
 - Test: the queued mail carries the logo, the support link and the Reply-To header.
 
 ### Notes
 
 - Styles live in the wrapper's `<style>` and premailer inlines them. A few need `!important` to beat frappe's `email.bundle` rules (`p` margin, `.email-btn-primary` color).
+- Gradients have a solid `#20eea0` fallback for clients without `background-image` (Outlook).
 - No web font link: premailer fetches external stylesheets on every send. The mail falls back to system fonts.
 
 ## README media refresh (2026-10-04)
