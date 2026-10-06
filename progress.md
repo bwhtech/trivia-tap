@@ -1,5 +1,18 @@
 # Progress
 
+## Branded emails (2026-10-06)
+
+### Done
+
+- `templates/emails/trivia_tap_wrapper.html`: TriviaTap wrapper for every auth mail. Dark masthead with logo, mint stripe, white card, brand green button, code in a dashed box, and a "Need help?" footer pointing to developers@bwh.tech.
+- `send_mail` sets Reply-To to developers@bwh.tech, so a reply reaches support instead of noreply.
+- Test: the queued mail carries the logo, the support link and the Reply-To header.
+
+### Notes
+
+- Styles live in the wrapper's `<style>` and premailer inlines them. A few need `!important` to beat frappe's `email.bundle` rules (`p` margin, `.email-btn-primary` color).
+- No web font link: premailer fetches external stylesheets on every send. The mail falls back to system fonts.
+
 ## README media refresh (2026-10-04)
 
 ### Done

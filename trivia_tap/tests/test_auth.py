@@ -1,3 +1,4 @@
+from email import message_from_string
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
@@ -16,7 +17,7 @@ from trivia_tap.auth import (
 	send_reset_link,
 	sign_up,
 )
-from trivia_tap.email_code import MAX_TRIES
+from trivia_tap.email_code import MAX_TRIES, send_mail
 from trivia_tap.patches import brand_site
 
 EMAIL = "new.host@example.com"
@@ -303,3 +304,19 @@ class TestGoogleLogin(IntegrationTestCase):
 		self.assertIn("Quiz Host", frappe.get_roles(EMAIL))
 		self.assertEqual(user.user_type, "System User")
 		self.assertEqual(user.get_social_login_userid("google"), "google-123")
+
+
+class TestMail(IntegrationTestCase):
+	def test_mail_carries_the_brand_and_support_address(self):
+		send_mail(EMAIL, "Your TriviaTap log in code", "trivia_tap_code", {"code": "042917", "minutes": 10})
+
+		mime = message_from_string(frappe.get_last_doc("Email Queue").message)
+		self.assertEqual(mime["Reply-To"], "developers@bwh.tech")
+		message = (
+			next(part for part in mime.walk() if part.get_content_type() == "text/html")
+			.get_payload(decode=True)
+			.decode()
+		)
+		self.assertIn("042917", message)
+		self.assertIn("trivia-tap-logo.png", message)
+		self.assertIn("mailto:developers@bwh.tech", message)

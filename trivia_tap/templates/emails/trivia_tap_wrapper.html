@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="color-scheme" content="light" />
+	<meta name="supported-color-schemes" content="light" />
+	<title>{{ subject or "" }}</title>
+	<style>
+		.tt-page { width: 100%; background-color: #eef8f3; font-family: "Instrument Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+		.tt-page .tt-shell { padding: 40px 16px; }
+		.tt-page .tt-card { width: 100%; max-width: 560px; background-color: #ffffff; border-radius: 20px; border: 1px solid #d6eee2; }
+		.tt-page .tt-masthead { padding: 22px 32px; background-color: #0a100e; border-radius: 19px 19px 0 0; }
+		.tt-page .tt-masthead a { text-decoration: none; }
+		.tt-page .tt-logo { width: 32px; height: 32px; border: 0; border-radius: 8px; vertical-align: middle; }
+		.tt-page .tt-wordmark { padding-left: 10px; vertical-align: middle; font-family: "Bricolage Grotesque", "Instrument Sans", Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; color: #ffffff; }
+		.tt-page .tt-stripe { height: 4px; font-size: 0; line-height: 0; background-color: #20eea0; background-image: linear-gradient(90deg, #6bf57f, #11ddb9); }
+		.tt-page .tt-content { padding: 32px; }
+		.tt-page .email-title { margin: 0 0 16px; font-family: "Bricolage Grotesque", "Instrument Sans", Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; color: #0a100e; }
+		.tt-page .email-body p { margin: 0 0 20px !important; font-size: 15px; line-height: 1.6; color: #3d4a44; }
+		.tt-page .email-body .email-code { display: inline-block; margin: 0 0 24px; padding: 14px 22px; font-family: "Martian Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 30px; font-weight: 700; letter-spacing: 0.2em; color: #0a100e; background-color: #eef8f3; border: 1px dashed #11ddb9; border-radius: 12px; }
+		.tt-page .email-body .email-action { margin: 4px 0 24px; }
+		.tt-page .email-body .email-btn { display: inline-block; padding: 13px 24px; font-size: 15px; font-weight: 600 !important; line-height: 1; text-decoration: none !important; color: #0a100e !important; background-color: #20eea0; border-radius: 999px; border: 0; }
+		.tt-page .email-body .email-ignore { margin: 0 !important; font-size: 13px; color: #6b7a73; }
+		.tt-page .tt-help { padding: 20px 32px; font-size: 13px; line-height: 1.6; color: #3d4a44; background-color: #f7fcf9; border-top: 1px solid #e3f2ea; border-radius: 0 0 19px 19px; }
+		.tt-page .tt-help a { color: #0a100e; font-weight: 600; text-decoration: underline; }
+		.tt-page .tt-meta { max-width: 560px; padding-top: 20px; text-align: center; font-size: 12px; line-height: 1.6; color: #6b7a73; }
+		.tt-page .tt-meta a { color: #6b7a73; }
+	</style>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #eef8f3;">
+	<table class="tt-page" role="presentation" cellpadding="0" cellspacing="0">
+		<tr>
+			<td class="tt-shell" align="center" valign="top">
+				<table class="tt-card" role="presentation" cellpadding="0" cellspacing="0">
+					<tr>
+						<td class="tt-masthead">
+							<a href="{{ site_url }}/trivia-tap">
+								<img class="tt-logo" src="/assets/trivia_tap/images/trivia-tap-logo.png" width="32" height="32" alt="" /><span class="tt-wordmark">TriviaTap</span>
+							</a>
+						</td>
+					</tr>
+					<tr><td class="tt-stripe">&nbsp;</td></tr>
+					<tr>
+						<td class="tt-content">{{ content }}</td>
+					</tr>
+					<tr>
+						<td class="tt-help">
+							{{ _("Need help? Write to us at {0}.").format('<a href="mailto:developers@bwh.tech">developers@bwh.tech</a>') }}
+						</td>
+					</tr>
+				</table>
+				<div class="tt-meta">
+					<div data-email-footer="true">{{ footer }}</div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</body>
+
+</html>
