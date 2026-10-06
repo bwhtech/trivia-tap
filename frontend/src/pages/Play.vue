@@ -78,158 +78,181 @@
 			<p v-if="error" class="px-4 pb-3 text-center text-sm text-alert">{{ error }}</p>
 		</template>
 
-		<main
-			v-else
-			class="flex flex-1 flex-col items-center justify-center gap-5 p-6 text-center"
-		>
-			<template v-if="phase === 'kicked'">
-				<h1 class="font-display text-3xl font-extrabold text-paper">
-					The host removed you
-				</h1>
-				<p class="text-paper/50">No hard feelings. The same PIN gets you back in.</p>
-				<button
-					class="rounded-2xl bg-brand px-7 py-3 font-display text-lg font-extrabold text-sunk"
-					@click="router.replace('/join')"
-				>
-					Back to join
-				</button>
-			</template>
+		<main v-else class="flex flex-1 flex-col items-center justify-center p-6 text-center">
+			<Transition name="phase" mode="out-in" appear>
+				<div :key="phase" class="flex w-full flex-col items-center gap-5">
+					<template v-if="phase === 'kicked'">
+						<h1 class="font-display text-3xl font-extrabold text-paper">
+							The host removed you
+						</h1>
+						<p class="text-paper/50">
+							No hard feelings. The same PIN gets you back in.
+						</p>
+						<button
+							class="rounded-2xl bg-brand px-7 py-3 font-display text-lg font-extrabold text-sunk"
+							@click="router.replace('/join')"
+						>
+							Back to join
+						</button>
+					</template>
 
-			<template v-else-if="phase === 'lobby'">
-				<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
-					PIN {{ player.pin }}
-				</p>
-				<h1 class="font-display text-5xl font-extrabold text-paper">You're in</h1>
-				<p class="max-w-xs text-paper/50">
-					Spot your name on the big screen. The game starts when the host says go.
-				</p>
-				<p class="font-mono text-sm tabular-nums text-paper/40">
-					{{ participants.length }} in the lobby
-				</p>
-			</template>
+					<template v-else-if="phase === 'lobby'">
+						<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">
+							PIN {{ player.pin }}
+						</p>
+						<h1 class="font-display text-5xl font-extrabold text-paper">You're in</h1>
+						<p class="max-w-xs text-paper/50">
+							Spot your name on the big screen. The game starts when the host says
+							go.
+						</p>
+						<p class="font-mono text-sm tabular-nums text-paper/40">
+							{{ participants.length }} in the lobby
+						</p>
+					</template>
 
-			<template v-else-if="phase === 'get_ready'">
-				<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-paper/40">
-					Question {{ (qIndex ?? 0) + 1 }} of {{ total }}
-				</p>
-				<h1 class="max-w-md font-display text-2xl font-bold leading-snug text-paper">
-					{{ questionText }}
-				</h1>
-				<DrainRing
-					:percent="timerPercent"
-					:seconds="Math.ceil(remaining)"
-					:size="132"
-					color="rgb(var(--accent))"
-				/>
-				<p class="text-paper/50">Read fast. The answers drop in a second.</p>
-			</template>
+					<template v-else-if="phase === 'get_ready'">
+						<p class="font-mono text-[11px] uppercase tracking-[0.28em] text-paper/40">
+							Question {{ (qIndex ?? 0) + 1 }} of {{ total }}
+						</p>
+						<h1
+							class="max-w-md font-display text-2xl font-bold leading-snug text-paper"
+						>
+							{{ questionText }}
+						</h1>
+						<DrainRing
+							:percent="timerPercent"
+							:seconds="Math.ceil(remaining)"
+							:size="132"
+							color="rgb(var(--accent))"
+						/>
+						<p class="text-paper/50">Read fast. The answers drop in a second.</p>
+					</template>
 
-			<template v-else-if="phase === 'locked'">
-				<svg
-					v-if="selected"
-					class="h-28 w-28"
-					:class="shapeFor(selected).svgFill"
-					viewBox="0 0 24 24"
-				>
-					<path :d="shapeFor(selected).path" />
-				</svg>
-				<h1 class="font-display text-4xl font-extrabold text-paper">Locked in</h1>
-				<p class="text-paper/50">Eyes on the big screen.</p>
-			</template>
+					<template v-else-if="phase === 'locked'">
+						<svg
+							v-if="selected"
+							class="pop-in h-28 w-28"
+							:class="shapeFor(selected).svgFill"
+							viewBox="0 0 24 24"
+						>
+							<path :d="shapeFor(selected).path" />
+						</svg>
+						<h1 class="font-display text-4xl font-extrabold text-paper">Locked in</h1>
+						<p class="text-paper/50">Eyes on the big screen.</p>
+					</template>
 
-			<template v-else-if="phase === 'result'">
-				<div
-					class="grid h-24 w-24 place-items-center rounded-full text-5xl text-sunk"
-					:class="result.is_correct ? 'bg-lagoon' : 'bg-ember'"
-				>
-					{{ result.is_correct ? "✓" : "✕" }}
+					<template v-else-if="phase === 'result'">
+						<div
+							class="pop-in grid h-24 w-24 place-items-center rounded-full text-5xl text-sunk"
+							:class="result.is_correct ? 'bg-lagoon' : 'bg-ember'"
+						>
+							{{ result.is_correct ? "✓" : "✕" }}
+						</div>
+						<h1 class="font-display text-4xl font-extrabold text-paper">
+							{{
+								result.is_correct
+									? "Correct"
+									: result.answered
+									? "Wrong"
+									: "No answer"
+							}}
+						</h1>
+						<p
+							v-if="result.points"
+							class="pop-in font-mono text-2xl font-bold text-accent [animation-delay:60ms]"
+						>
+							+{{ result.points }}
+						</p>
+						<p v-if="result.streak > 1" class="text-paper/60">
+							{{ result.streak }} in a row 🔥
+						</p>
+						<p class="font-mono text-xs uppercase tracking-[0.2em] text-paper/40">
+							Rank {{ result.rank }} · {{ result.score }} pts
+						</p>
+						<img
+							v-if="explanation?.image_url"
+							:src="explanation.image_url"
+							alt=""
+							class="max-h-[22vh] w-full object-contain"
+						/>
+						<p
+							v-if="explanation?.explanation"
+							class="max-w-sm text-sm leading-relaxed text-paper/60"
+						>
+							{{ explanation.explanation }}
+						</p>
+						<ul class="mt-2 w-full max-w-xs text-left">
+							<li
+								v-for="(entry, index) in result.top_5"
+								:key="entry.nickname"
+								class="flex items-center justify-between border-b border-haze py-2 text-sm"
+								:class="
+									entry.nickname === player.nickname
+										? 'font-bold text-accent'
+										: 'text-paper/60'
+								"
+							>
+								<span class="flex items-center gap-2">
+									<span class="w-4 font-mono text-xs tabular-nums opacity-60">{{
+										index + 1
+									}}</span>
+									<AvatarPic
+										:id="entry.avatar"
+										:nickname="entry.nickname"
+										:size="22"
+									/>
+									{{ entry.nickname }}
+								</span>
+								<span class="font-mono tabular-nums">{{ entry.score }}</span>
+							</li>
+						</ul>
+					</template>
+
+					<template v-else-if="phase === 'podium'">
+						<h1 class="font-display text-5xl font-extrabold text-paper">
+							{{ myRank === 1 ? "You won" : `You finished #${myRank}` }}
+						</h1>
+						<p class="font-mono text-2xl font-bold text-accent">{{ score }} pts</p>
+						<ul class="mt-2 w-full max-w-xs text-left">
+							<li
+								v-for="entry in leaderboard.slice(0, 5)"
+								:key="entry.nickname"
+								class="flex items-center justify-between border-b border-haze py-2"
+								:class="
+									entry.nickname === player.nickname
+										? 'font-bold text-accent'
+										: 'text-paper/60'
+								"
+							>
+								<span class="flex items-center gap-2">
+									<span class="w-4 font-mono text-xs tabular-nums opacity-60">{{
+										entry.rank
+									}}</span>
+									<AvatarPic
+										:id="entry.avatar"
+										:nickname="entry.nickname"
+										:size="22"
+									/>
+									{{ entry.nickname }}
+								</span>
+								<span class="font-mono tabular-nums">{{ entry.score }}</span>
+							</li>
+						</ul>
+						<button
+							class="mt-3 rounded-full border border-haze px-5 py-2 text-sm text-paper/60 transition hover:border-ember hover:text-alert"
+							@click="playAgain"
+						>
+							Back to join
+						</button>
+					</template>
+
+					<template v-else>
+						<p class="font-mono text-sm uppercase tracking-[0.22em] text-paper/40">
+							Hang tight
+						</p>
+					</template>
 				</div>
-				<h1 class="font-display text-4xl font-extrabold text-paper">
-					{{ result.is_correct ? "Correct" : result.answered ? "Wrong" : "No answer" }}
-				</h1>
-				<p v-if="result.points" class="font-mono text-2xl font-bold text-accent">
-					+{{ result.points }}
-				</p>
-				<p v-if="result.streak > 1" class="text-paper/60">
-					{{ result.streak }} in a row 🔥
-				</p>
-				<p class="font-mono text-xs uppercase tracking-[0.2em] text-paper/40">
-					Rank {{ result.rank }} · {{ result.score }} pts
-				</p>
-				<img
-					v-if="explanation?.image_url"
-					:src="explanation.image_url"
-					alt=""
-					class="max-h-[22vh] w-full object-contain"
-				/>
-				<p
-					v-if="explanation?.explanation"
-					class="max-w-sm text-sm leading-relaxed text-paper/60"
-				>
-					{{ explanation.explanation }}
-				</p>
-				<ul class="mt-2 w-full max-w-xs text-left">
-					<li
-						v-for="(entry, index) in result.top_5"
-						:key="entry.nickname"
-						class="flex items-center justify-between border-b border-haze py-2 text-sm"
-						:class="
-							entry.nickname === player.nickname
-								? 'font-bold text-accent'
-								: 'text-paper/60'
-						"
-					>
-						<span class="flex items-center gap-2">
-							<span class="w-4 font-mono text-xs tabular-nums opacity-60">{{
-								index + 1
-							}}</span>
-							<AvatarPic :id="entry.avatar" :nickname="entry.nickname" :size="22" />
-							{{ entry.nickname }}
-						</span>
-						<span class="font-mono tabular-nums">{{ entry.score }}</span>
-					</li>
-				</ul>
-			</template>
-
-			<template v-else-if="phase === 'podium'">
-				<h1 class="font-display text-5xl font-extrabold text-paper">
-					{{ myRank === 1 ? "You won" : `You finished #${myRank}` }}
-				</h1>
-				<p class="font-mono text-2xl font-bold text-accent">{{ score }} pts</p>
-				<ul class="mt-2 w-full max-w-xs text-left">
-					<li
-						v-for="entry in leaderboard.slice(0, 5)"
-						:key="entry.nickname"
-						class="flex items-center justify-between border-b border-haze py-2"
-						:class="
-							entry.nickname === player.nickname
-								? 'font-bold text-accent'
-								: 'text-paper/60'
-						"
-					>
-						<span class="flex items-center gap-2">
-							<span class="w-4 font-mono text-xs tabular-nums opacity-60">{{
-								entry.rank
-							}}</span>
-							<AvatarPic :id="entry.avatar" :nickname="entry.nickname" :size="22" />
-							{{ entry.nickname }}
-						</span>
-						<span class="font-mono tabular-nums">{{ entry.score }}</span>
-					</li>
-				</ul>
-				<button
-					class="mt-3 rounded-full border border-haze px-5 py-2 text-sm text-paper/60 transition hover:border-ember hover:text-alert"
-					@click="playAgain"
-				>
-					Back to join
-				</button>
-			</template>
-
-			<template v-else>
-				<p class="font-mono text-sm uppercase tracking-[0.22em] text-paper/40">
-					Hang tight
-				</p>
-			</template>
+			</Transition>
 		</main>
 	</div>
 </template>

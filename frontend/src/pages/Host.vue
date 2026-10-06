@@ -67,7 +67,7 @@
 					<button class="group" @click="qrFullscreen = true">
 						<AnimatedQr
 							:url="joinUrl"
-							class="size-40 rounded-2xl bg-card p-2 ring-1 ring-haze transition group-hover:scale-105 sm:size-48"
+							class="size-40 rounded-2xl bg-card p-2 ring-1 ring-haze transition group-hover:scale-105 group-active:scale-[0.97] sm:size-48"
 						/>
 						<span
 							class="mt-2 block font-mono text-[11px] uppercase tracking-wider text-paper/35 transition group-hover:text-paper/70"
@@ -91,25 +91,27 @@
 						class="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2.5 p-1"
 					>
 						<!-- not the whole chip: a full-name-sized kick button is too easy to hit by accident -->
-						<div
-							v-for="participant in visibleParticipants"
-							:key="participant.name"
-							class="group relative flex items-center gap-2 rounded-full border border-haze bg-dusk py-1 pl-1 pr-4 text-base font-medium text-paper sm:gap-3 sm:pr-5 sm:text-xl"
-						>
-							<AvatarPic
-								:id="participant.avatar"
-								:nickname="participant.nickname"
-								:size="40"
-							/>
-							<span>{{ participant.nickname }}</span>
-							<button
-								class="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-haze text-sm leading-none text-paper opacity-0 transition hover:bg-ember hover:text-sunk focus-visible:opacity-100 group-hover:opacity-100"
-								:aria-label="`Remove ${participant.nickname}`"
-								@click="kick(participant)"
+						<TransitionGroup name="chip">
+							<div
+								v-for="participant in visibleParticipants"
+								:key="participant.name"
+								class="group relative flex items-center gap-2 rounded-full border border-haze bg-dusk py-1 pl-1 pr-4 text-base font-medium text-paper sm:gap-3 sm:pr-5 sm:text-xl"
 							>
-								×
-							</button>
-						</div>
+								<AvatarPic
+									:id="participant.avatar"
+									:nickname="participant.nickname"
+									:size="40"
+								/>
+								<span>{{ participant.nickname }}</span>
+								<button
+									class="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-haze text-sm leading-none text-paper opacity-0 transition hover:bg-ember hover:text-sunk focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+									:aria-label="`Remove ${participant.nickname}`"
+									@click="kick(participant)"
+								>
+									×
+								</button>
+							</div>
+						</TransitionGroup>
 						<div
 							v-if="overflowCount"
 							class="flex items-center rounded-full border border-haze bg-dusk px-4 py-2.5 text-base font-medium text-paper/50 sm:px-5 sm:text-xl"
@@ -191,7 +193,10 @@
 						<div
 							class="podium-rise flex w-full items-start justify-center rounded-t-2xl pt-3 font-mono text-2xl font-bold text-sunk sm:text-3xl"
 							:class="PODIUM_FILL[entry.rank]"
-							:style="{ height: `${180 - (entry.rank - 1) * 45}px` }"
+							:style="{
+								height: `${180 - (entry.rank - 1) * 45}px`,
+								animationDelay: `${PODIUM_DELAY_MS[entry.rank]}ms`,
+							}"
 						>
 							{{ entry.rank }}
 						</div>
@@ -427,7 +432,7 @@
 								</span>
 								<div class="flex flex-1 flex-col justify-end rounded-t-lg bg-dusk">
 									<div
-										class="rounded-t-lg transition-[height] duration-500"
+										class="bar-grow rounded-t-lg"
 										:class="shape.fill"
 										:style="{ height: `${barHeight(shape.id)}%` }"
 									/>
@@ -479,6 +484,8 @@ import { initSound, muted, playCue, toggleMute } from "@/sound";
 import AnimatedQr from "@/components/AnimatedQr.vue";
 
 const PODIUM_FILL = { 1: "bg-gold", 2: "bg-lagoon", 3: "bg-orchid" };
+// third rises first so the winner lands last
+const PODIUM_DELAY_MS = { 1: 600, 2: 250, 3: 0 };
 // remembered so a reload on the podium restores it: get_host_state only auto-finds live sessions
 const HOSTED_SESSION_KEY = "tt_hosted_session";
 // long enough to read the old order before it moves, and to watch the points climb

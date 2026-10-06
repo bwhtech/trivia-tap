@@ -129,7 +129,7 @@ async function save() {
 	border: 1px solid rgb(var(--haze));
 	border-radius: 999px;
 	color: rgb(var(--paper) / 0.7);
-	transition: 0.15s ease;
+	transition: color 150ms ease, border-color 150ms ease;
 }
 
 .arrow:hover {

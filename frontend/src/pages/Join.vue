@@ -139,7 +139,7 @@
 
 				<button
 					type="submit"
-					class="rounded-2xl bg-brand py-4 font-display text-xl font-extrabold text-sunk transition hover:brightness-110 disabled:opacity-50"
+					class="rounded-2xl bg-brand py-4 font-display text-xl font-extrabold text-sunk transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50 disabled:active:scale-100"
 					:disabled="joining || !ready"
 				>
 					{{ joining ? "Joining…" : "Join game" }}
