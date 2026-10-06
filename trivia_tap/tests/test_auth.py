@@ -1,9 +1,10 @@
-from email import message_from_string
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 import frappe
+from frappe.email.email_body import get_formatted_html
 from frappe.tests import IntegrationTestCase
+from frappe.utils.jinja import get_email_from_template
 from frappe.utils.oauth import consume_oauth_state, update_oauth_user
 from frappe.utils.password import check_password
 
@@ -307,16 +308,14 @@ class TestGoogleLogin(IntegrationTestCase):
 
 
 class TestMail(IntegrationTestCase):
-	def test_mail_carries_the_brand_and_support_address(self):
+	@patch("trivia_tap.email_code.frappe.sendmail")
+	def test_mail_carries_the_brand_and_support_address(self, sendmail):
 		send_mail(EMAIL, "Your TriviaTap log in code", "trivia_tap_code", {"code": "042917", "minutes": 10})
 
-		mime = message_from_string(frappe.get_last_doc("Email Queue").message)
-		self.assertEqual(mime["Reply-To"], "developers@bwh.tech")
-		message = (
-			next(part for part in mime.walk() if part.get_content_type() == "text/html")
-			.get_payload(decode=True)
-			.decode()
-		)
+		mail = sendmail.call_args.kwargs
+		self.assertEqual(mail["reply_to"], "developers@bwh.tech")
+		content = get_email_from_template(mail["template"], mail["args"])[0]
+		message = get_formatted_html(mail["subject"], content, wrapper=mail["wrapper"])
 		self.assertIn("042917", message)
 		self.assertIn("trivia-tap-logo.png", message)
 		self.assertIn("mailto:developers@bwh.tech", message)
