@@ -1,7 +1,7 @@
 <template>
 	<div class="relative shrink-0" :style="{ width: `${size}px`, height: `${size}px` }">
 		<div
-			class="drain-ring absolute inset-0 rounded-full transition-[background] duration-100 ease-linear"
+			class="drain-ring absolute inset-0 rounded-full"
 			:style="{
 				'--p': percent,
 				'--drain-color': color,

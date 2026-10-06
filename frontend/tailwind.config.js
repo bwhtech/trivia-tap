@@ -1,6 +1,8 @@
 import frappeUIPreset from "frappe-ui/tailwind";
 
 export default {
+	// touch screens keep :hover after a tap, which leaves the last-tapped answer lit
+	future: { hoverOnlyWhenSupported: true },
 	presets: [frappeUIPreset],
 	content: [
 		"./index.html",

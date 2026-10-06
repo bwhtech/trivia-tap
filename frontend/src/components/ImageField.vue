@@ -11,7 +11,7 @@
 			>
 				<img :src="modelValue" alt="" class="max-h-full max-w-full object-contain" />
 				<div
-					class="absolute right-2 top-2 flex gap-1.5 opacity-0 transition focus-within:opacity-100 group-hover:opacity-100"
+					class="absolute right-2 top-2 flex gap-1.5 opacity-0 transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
 				>
 					<button
 						class="image-action"
@@ -60,6 +60,6 @@ const emit = defineEmits(["update:modelValue"]);
 	border-radius: 999px;
 	background: rgb(var(--night) / 0.85);
 	color: rgb(var(--paper));
-	transition: 0.15s ease;
+	transition: color 150ms ease;
 }
 </style>
