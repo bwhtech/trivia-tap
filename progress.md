@@ -1,5 +1,20 @@
 # Progress
 
+## Motion polish (2026-10-06)
+
+### Done
+
+- Player phone: phase changes fade and rise in (220ms, strong ease-out) and fade out faster (120ms). The locked-in shape, result badge and points pop in from `scale(0.9)`.
+- Host: lobby chips scale in on join and fade on kick. Distribution bars grow from the bottom with `scaleY`. Podium bars reveal with `clip-path` instead of `height`, third first and winner last.
+- Press feedback: `.ctl` and the brand CTAs scale to 0.97 on `:active`.
+- Touch: `hoverOnlyWhenSupported` stops a tapped answer staying lit. Hover-only actions (kick, rail, image) stay visible under `(hover: none)`.
+- Cleanup: named transition properties instead of bare `transition: 0.15s ease`, dropped the dead gradient transition on the drain ring.
+
+### Notes
+
+- Headless Chrome reports `(hover: none)`, so hover-only buttons show in agent-browser screenshots.
+- agent-browser `set device "iPhone 14"` (DPR 3) misplaces clicks: one answer landed on the wrong tile and Join missed. Use `set viewport 390 844` for player tests.
+
 ## Branded emails (2026-10-06)
 
 ### Done
