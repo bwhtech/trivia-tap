@@ -98,7 +98,7 @@ The server runs the game, so players can't cheat from their phones:
 2. In another terminal, from your bench directory:
 
 ```bash
-bench get-app https://github.com/bwhtech/trivia_tap --branch develop
+bench get-app https://github.com/bwhtech/trivia-tap --branch develop
 bench --site your-site.localhost install-app trivia_tap
 ```
 
